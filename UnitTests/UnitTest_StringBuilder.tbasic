@@ -114,7 +114,7 @@ Function test_Length_TextAdded_CorrectLengthReported()
   sb.Add("thin")
   sb.Add("BASIC")
   
-  ut_assertEqual(9, Len(sb.ToString()))
+  ut_assertEqual(9, sb.Length)
   
 End Function      
 

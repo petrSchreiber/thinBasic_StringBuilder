@@ -16,6 +16,7 @@ FUNCTION StringBuilder_LoadSymbols() AS LONG
   IF pStringBuilder THEN
 
     thinBasic_Class_AddMethod(pStringBuilder, "_Create", %thinBasic_ReturnNone , CODEPTR(StringBuilder_Create))
+    thinBasic_Class_AddMethod(pStringBuilder, "_Destroy", %thinBasic_ReturnNone , CODEPTR(StringBuilder_Destroy))
 
     thinBasic_Class_AddMethod(pStringBuilder, "Add", %thinBasic_ReturnCodeLong , CODEPTR(StringBuilder_Add))
     thinBasic_Class_AddMethod(pStringBuilder, "AddLine", %thinBasic_ReturnCodeLong , CODEPTR(StringBuilder_AddLine))
@@ -74,8 +75,14 @@ SUB StringBuilder_Create(BYVAL pObject AS LONG)
     oObject(1&).Initialize1()
   END IF
 
-
 END SUB
+
+FUNCTION StringBuilder_Destroy(BYVAL pObject AS LONG) AS LONG
+
+  DIM oObject(1& TO 1&) AS iThinStringBuilder AT pObject
+  oObject(1&) = NOTHING
+
+END FUNCTION
 
 ' -----------------------------------------------------------------------------
 
