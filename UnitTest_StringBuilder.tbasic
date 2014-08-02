@@ -1,0 +1,143 @@
+Uses "StringBuilder"
+Uses "Console"      
+
+#INCLUDE "unitTesting.tBasicU"
+
+' -- Main body of our testing engine
+Function TBMain()
+  
+  ' -- Initialize testing engine
+  ut_Initialize()
+ 
+  ' -- Automatically launch all possible tests
+  ut_LaunchTests()      
+ 
+  ' -- Report failures found in report, if any
+  Long nFailures = ut_GetFailureCount()
+  Long i
+   
+  If nFailures Then   
+    PrintL  
+                         
+     
+    For i = 1 To nFailures
+      PrintL "#"+i
+      PrintL "Test:        " + ut_GetFailureTestName(i)
+      PrintL "Assert:      " + ut_GetFailureAssertType(i)
+      PrintL "Description: " + ut_GetFailureDescription(i)
+      PrintL "Comment:     " + ut_GetFailureComment(i)
+      PrintL
+    Next
+  Else
+    PrintL "PASSED" 
+  End If             
+   
+  ' -- Save results to default file
+  ut_SaveLog()
+   
+  ' -- Release engine
+  ut_Release()
+   
+  WaitKey
+ 
+End Function
+
+Function test_Constructor_NoValuePassed_CapacityEquals16()
+
+  Dim sb As StringBuilder
+  sb = New StringBuilder()
+  
+  ut_assertEqual(16, sb.Capacity)
+  
+End Function
+
+Function test_Constructor_CapacityForced_CapacityExists()
+
+  Dim sb As StringBuilder
+  sb = New StringBuilder(128)
+  
+  ut_assertEqual(128, sb.Capacity)
+  
+End Function    
+
+Function test_Constructor_TextForced_CapacityExists()
+
+  Dim sb As StringBuilder
+  sb = New StringBuilder("Ciao")
+  
+  ut_assertEqual("Ciao", sb.ToString())
+  
+End Function
+
+' -----------------------------------------------------------------------------
+
+Function test_Add_TextAddedOnce_PresentInBuffer()
+
+  Dim sb As StringBuilder
+  sb = New StringBuilder()
+  
+  sb.Add("Ciao")
+  
+  ut_assertEqualText("Ciao", sb.ToString())
+  
+End Function
+
+Function test_Add_TextAddedTwice_PresentInBuffer()
+
+  Dim sb As StringBuilder
+  sb = New StringBuilder()
+  
+  sb.Add("thin")
+  sb.Add("BASIC")
+  
+  ut_assertEqualText("thinBASIC", sb.ToString())
+  
+End Function
+
+Function test_AddLine_TextAddedTwice_PresentInBuffer()
+
+  Dim sb As StringBuilder
+  sb = New StringBuilder()
+  
+  sb.AddLine("thin")
+  sb.AddLine("BASIC")
+  
+  ut_assertEqual(2, Tally(sb.ToString(), $CRLF))
+  
+End Function   
+
+Function test_Length_TextAdded_CorrectLengthReported()
+
+  Dim sb As StringBuilder
+  sb = New StringBuilder()
+  
+  sb.Add("thin")
+  sb.Add("BASIC")
+  
+  ut_assertEqual(9, Len(sb.ToString()))
+  
+End Function      
+
+Function test_Char_FirstChanged_CorrectOutput()
+
+  Dim sb As StringBuilder
+  sb = New StringBuilder()
+  
+  sb.Add("Ciao")     
+  sb.Char(1) = "X"
+    
+  ut_assertEqual("Xiao", sb.ToString())
+  
+End Function
+
+Function test_CharCode_FirstChanged_CorrectOutput()
+
+  Dim sb As StringBuilder
+  sb = New StringBuilder()
+  
+  sb.Add("Ciao")                             
+  sb.CharCode(1) = 65
+      
+  ut_assertEqual("Aiao", sb.ToString())
+  
+End Function
