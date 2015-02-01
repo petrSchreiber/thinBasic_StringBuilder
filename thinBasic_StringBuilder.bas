@@ -10,19 +10,19 @@
 
 ' -- The version itself should reflect the targetted thinBasic version
 #RESOURCE VERSIONINFO
-#RESOURCE FILEVERSION 1, 9, 13, 0
-#RESOURCE PRODUCTVERSION 1, 9, 13, 0
+#RESOURCE FILEVERSION 1, 9, 16, 0
+#RESOURCE PRODUCTVERSION 1, 9, 16, 0
 
 #RESOURCE STRINGINFO "0409", "04B0"
 
 #RESOURCE VERSION$ "CompanyName",      "Petr Schreiber"
 #RESOURCE VERSION$ "FileDescription",  "StringBuilder module for thinBASIC"
-#RESOURCE VERSION$ "FileVersion",      "1.9.13.0"
+#RESOURCE VERSION$ "FileVersion",      "1.9.16.0"
 #RESOURCE VERSION$ "InternalName",     "StringBuilder"
 #RESOURCE VERSION$ "OriginalFilename", "ThinBASIC_StringBuilder.dll"
 #RESOURCE VERSION$ "LegalCopyright",   "Copyright © Petr Schreiber 2014"
 #RESOURCE VERSION$ "ProductName",      "StringBuilder"
-#RESOURCE VERSION$ "ProductVersion",   "1.9.13.0"
+#RESOURCE VERSION$ "ProductVersion",   "1.9.16.0"
 #RESOURCE VERSION$ "Comments",         "Support site: http://www.thinbasic.com/"
 
 ' -----------------------------------------------------------------------------

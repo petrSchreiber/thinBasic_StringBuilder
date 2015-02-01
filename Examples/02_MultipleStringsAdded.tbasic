@@ -1,0 +1,35 @@
+Uses "StringBuilder", "Console"      
+
+Function TBMain()
+
+  Dim stringBuffer As String
+  Dim sb As StringBuilder
+  sb = New StringBuilder()
+  
+  Long i
+        
+  Dim stopWatch As cTimer
+  stopWatch = New cTimer()
+  
+  Print "Appending to classic string: "
+  stopWatch.Start       
+  For i = 1 To 20000
+    stringBuffer += "Appending is fine! (" + i + ")"
+  Next             
+  stopWatch.Stop
+  PrintL stopWatch.ElapsedToString(%CTIMER_MILLISECONDS, "0") + " ms (Total " + Len(stringBuffer) + " characters)"
+  
+  Print "Appending to string builder: "
+  stopWatch.Start       
+  For i = 1 To 20000
+    sb.Add("Appending is fine! (", i, ")")
+  Next             
+  stopWatch.Stop
+  PrintL stopWatch.ElapsedToString(%CTIMER_MILLISECONDS, "0") + " ms (Total " + Len(sb.ToString()) + " characters)"
+  
+  PrintL
+  printl "Press any key to quit..."
+  
+  WaitKey
+  
+End Function

@@ -18,7 +18,6 @@ Function TBMain()
    
   If nFailures Then   
     PrintL  
-                         
      
     For i = 1 To nFailures
       PrintL "#"+i
@@ -89,6 +88,17 @@ Function test_Add_TextAddedTwice_PresentInBuffer()
   
   sb.Add("thin")
   sb.Add("BASIC")
+  
+  ut_assertEqualText("thinBASIC", sb.ToString())
+  
+End Function
+
+Function test_Add_TextAddedTwiceWithOneLineSyntax_PresentInBuffer()
+
+  Dim sb As StringBuilder
+  sb = New StringBuilder()
+  
+  sb.Add("thin", "BASIC")
   
   ut_assertEqualText("thinBASIC", sb.ToString())
   

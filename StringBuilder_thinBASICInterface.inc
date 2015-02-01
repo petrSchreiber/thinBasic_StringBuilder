@@ -94,9 +94,17 @@ FUNCTION StringBuilder_Add(BYVAL pObject AS LONG) AS LONG
   IF thinBasic_CheckOpenParens_Mandatory() AND thinBasic_ErrorFree() THEN
     thinBasic_ParseString addedText
 
-    IF thinBasic_CheckCloseParens_Mandatory() AND thinBasic_ErrorFree() THEN
+    IF thinBasic_ErrorFree() THEN
       oObject(1&).Add(addedText)
     END IF
+
+    WHILE thinBasic_CheckComma_Optional() AND thinBasic_ErrorFree()
+      thinBasic_ParseString addedText
+      oObject(1&).Add(addedText)
+    WEND
+
+    thinBasic_CheckCloseParens_Mandatory()
+
   END IF
 
 END FUNCTION

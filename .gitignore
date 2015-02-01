@@ -3,3 +3,4 @@
 *.dll
 *.bak
 Backup.*.*
+UnitTests/unitTest.txt
