@@ -11,15 +11,36 @@ Function TBMain()
   Dim stopWatch As cTimer
   stopWatch = New cTimer()
   
-  Print "Appending to classic string: "
+  PrintL "Appending to classic string: "
   stopWatch.Start       
   For i = 1 To 20000
     stringBuffer += "Appending is fine! (" + i + ")"
   Next             
   stopWatch.Stop
   PrintL stopWatch.ElapsedToString(%CTIMER_MILLISECONDS, "0") + " ms (Total " + Len(stringBuffer) + " characters)"
-  
-  Print "Appending to string builder: "
+
+  PrintL
+  PrintL "Appending to classic string with StrFormat$: "
+  stringBuffer = ""
+  stopWatch.Start       
+  For i = 1 To 20000
+    stringBuffer += StrFormat$("Appending is fine! ({1})", i)
+  Next             
+  stopWatch.Stop
+  PrintL stopWatch.ElapsedToString(%CTIMER_MILLISECONDS, "0") + " ms (Total " + Len(stringBuffer) + " characters)"
+
+  PrintL
+  PrintL "Appending to string builder with StrFormat$: "
+  stopWatch.Start       
+  For i = 1 To 20000
+    sb.Add(StrFormat$("Appending is fine! ({1})", i))
+  Next             
+  stopWatch.Stop
+  PrintL stopWatch.ElapsedToString(%CTIMER_MILLISECONDS, "0") + " ms (Total " + Len(sb.ToString()) + " characters)"
+    
+  PrintL
+  PrintL "Appending to string builder with multiple parameters: "
+  sb.Clear()
   stopWatch.Start       
   For i = 1 To 20000
     sb.Add("Appending is fine! (", i, ")")
