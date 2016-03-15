@@ -1,7 +1,7 @@
 thinBasic_StringBuilder
 =======================
 
-StringBuilder module for ThinBASIC.
+StringBuilder module for ThinBASIC Programming Language.
 
 Improves the performance of append heavy string operations... a lot!
 
