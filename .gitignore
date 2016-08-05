@@ -2,5 +2,6 @@
 *.log
 *.dll
 *.bak
+*.lnx
 Backup.*.*
 UnitTests/unitTest.txt
