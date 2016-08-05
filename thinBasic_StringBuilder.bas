@@ -32,7 +32,7 @@
 #INCLUDE "thinCore.inc"
 
 ' -- functionality exposed to ThinBASIC
-#INCLUDE "StringBuilder_thinBASICInterface.inc
+#Include "StringBuilder_thinBASICInterface.inc"
 
 '----------------------------------------------------------------------------
 
