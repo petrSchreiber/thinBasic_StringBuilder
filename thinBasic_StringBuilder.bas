@@ -9,22 +9,23 @@
 #DIM ALL
 
 ' -- The version itself should reflect the targetted thinBasic version
-#RESOURCE VERSIONINFO
-#RESOURCE FILEVERSION 1, 9, 16, 0
-#RESOURCE PRODUCTVERSION 1, 9, 16, 0
+'------------------------------------------------------------------
+#Include "thinBasic_StringBuilder_resources.inc"
+#Resource VERSIONINFO
+#Resource FILEVERSION %THINBASIC_STRINGBUILDER_VERSIONMAJOR, %THINBASIC_STRINGBUILDER_VERSIONMINOR, %THINBASIC_STRINGBUILDER_VERSIONBUILD, %THINBASIC_STRINGBUILDER_VERSIONREVISION
+#Resource PRODUCTVERSION %THINBASIC_STRINGBUILDER_VERSIONMAJOR, %THINBASIC_STRINGBUILDER_VERSIONMINOR, %THINBASIC_STRINGBUILDER_VERSIONBUILD, %THINBASIC_STRINGBUILDER_VERSIONREVISION
 
-#RESOURCE STRINGINFO "0409", "04B0"
+#Resource STRINGINFO "0409", "04E4"
 
-#RESOURCE VERSION$ "CompanyName",      "Petr Schreiber"
-#RESOURCE VERSION$ "FileDescription",  "StringBuilder module for thinBASIC"
-#RESOURCE VERSION$ "FileVersion",      "1.9.16.0"
-#RESOURCE VERSION$ "InternalName",     "StringBuilder"
-#RESOURCE VERSION$ "OriginalFilename", "ThinBASIC_StringBuilder.dll"
-#RESOURCE VERSION$ "LegalCopyright",   "Copyright © Petr Schreiber 2014"
-#RESOURCE VERSION$ "ProductName",      "StringBuilder"
-#RESOURCE VERSION$ "ProductVersion",   "1.9.16.0"
-#RESOURCE VERSION$ "Comments",         "Support site: http://www.thinbasic.com/"
-
+#Resource VERSION$ "CompanyName",      $THIN_COMMON_COMPANYNAME
+#Resource VERSION$ "FileDescription",  $THINBASIC_STRINGBUILDER_FILEDESCRIPTION
+#Resource VERSION$ "FileVersion",      $THINBASIC_STRINGBUILDER_VERSIONLITERAL
+#Resource VERSION$ "InternalName",     $THINBASIC_STRINGBUILDER_INTERNALNAME
+#Resource VERSION$ "OriginalFilename", $THINBASIC_STRINGBUILDER_ORIGINALFILENAME
+#Resource VERSION$ "LegalCopyright",   $THIN_COMMON_LEGALCOPYRIGHT
+#Resource VERSION$ "ProductName",      $THINBASIC_STRINGBUILDER_PRODUCTNAME
+#Resource VERSION$ "ProductVersion",   $THINBASIC_STRINGBUILDER_VERSIONLITERAL
+#Resource VERSION$ "Comments",         $THIN_COMMON_COMMENT
 ' -----------------------------------------------------------------------------
 
 ' -- thinBASIC module SDK
