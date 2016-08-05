@@ -2,13 +2,13 @@
   '=============================================================================
   'File Name   : thinCore.inc
   'Author      : Eros Olmi
-  'Version     : 1.9.0.0
+  'Version     : 1.9.16.x
   'Description : thinBasic external library Interface definitions
   'Web site    : http://www.thinbasic.com
   '=============================================================================
   'COPYRIGHT And PERMISSION NOTICE
   '=============================================================================
-  'Copyright (c) 2003 - 2010, Eros Olmi, <eros.olmi@thinbasic.com>
+  'Copyright (c) 2003 - 2016, Eros Olmi, <eros.olmi@thinbasic.com>
   ' 
   'All rights reserved.
   ' 
@@ -69,8 +69,13 @@
   'Return Types from functions/Subs
   '------------------------------------------------------------------------------
   %thinBasic_ReturnNone             =  0&   'Used in thinBasic_LoadSymbol to define a sub
+  %thinBasic_ReturnCodeNone         = %thinBasic_ReturnNone
+
   %thinBasic_ReturnNumber           = 20&   'Used in thinBasic_LoadSymbol to define a function returning a EXT number
+  %thinBasic_ReturnCodeNumber       = %thinBasic_ReturnNumber
+
   %thinBasic_ReturnString           = 30&   'Used in thinBasic_LoadSymbol to define a function returning a string
+  %thinBasic_ReturnCodeString       = %thinBasic_ReturnString
 
   %thinBasic_ReturnCodeByte         =  1&
   %thinBasic_ReturnCodeInteger      =  2&
@@ -87,6 +92,19 @@
   %thinBasic_BufferType_IsFile      = 0&
   %thinBasic_BufferType_IsScript    = 1&
 
+  %thinBasic_CallingProgram_GUI     = 1&
+  %thinBasic_CallingProgram_Console = 2&
+  
+
+  '----------------------------------------------------------------------------
+  'thinBasic_Init / thinBasic_Run / thinBasic_Release
+  '----------------------------------------------------------------------------
+  ' Description
+  '   the 3 functions to call in sequence in order to execute a script
+  '   when using thinCore.dll (thinBasic engine) as embedded scripting language
+  '
+  ' 
+  '----------------------------------------------------------------------------
   Declare Function  thinBasic_Init                                _
                           Lib "thinCore.dll"                      _
                           Alias "thinBasic_Init"                  _
@@ -95,12 +113,7 @@
                             ByVal cInstance       As Long       , _
                             ByVal sKey            As String       _
                           ) As Long
-  Declare Function  thinBasic_Release                             _
-                          Lib "thinCore.dll"                      _
-                          Alias "thinBasic_Release"               _
-                          (                                       _
-                            ByVal hScript         As Long         _
-                          ) As Long
+
   Declare Function  thinBasic_Run                                 _
                           Lib "thinCore.dll"                      _
                           Alias "thinBasic_Run"                   _
@@ -116,6 +129,38 @@
                             ByVal DependancyMode  As Long         _
                           ) As Long
 
+  Declare Function  thinBasic_Release                             _
+                          Lib "thinCore.dll"                      _
+                          Alias "thinBasic_Release"               _
+                          (                                       _
+                            ByVal hScript         As Long         _
+                          ) As Long
+
+
+  '----------------------------------------------------------------------------
+  'thinBasic_AddIncludePath
+  '----------------------------------------------------------------------------
+  ' Description
+  '   when a file us specified in #INCLUDE withou a fully qualified path
+  '   thinBasic will search for the file using script or executable path
+  '   If not found, thinBasic will search in some directories specified by #INCLUDEDIR.
+  '   This function is the equivalent of #INCLUDEDIR but executed from the aoutside
+  '   of the script
+  '
+  ' Parameters
+  '   sNewIncludeDir  : full path of the new include dir when thinBasic will serach fon files
+  '                     specified in #INCLUDE
+  '
+  '   ReturnCode  : None
+  '   
+  '   Call this function after thinBasic_Init but before thinBasic_Run
+  '----------------------------------------------------------------------------
+  Declare Function  thinBasic_AddIncludePath                      _
+                          Lib "thinCore.dll"                      _
+                          Alias "thinBasic_AddIncludePath"        _
+                          (                                       _
+                            ByVal sNewIncludeDir  As String       _
+                          ) As Long
   
   '----------------------------------------------------------------------------
   'thinBasic_LoadSymbol
@@ -390,6 +435,7 @@
     %MainType_PTR             = 70?               : %MainType_IsPTR     = %MainType_PTR
     %MainType_Object          = 80?               : %MainType_IsObject  = %MainType_Object
     %MainType_Class           = 90?               : %MainType_IsClass   = %MainType_Class
+    %MainType_Function        = 95?               : %MainType_IsFunction= %MainType_Function
   
 
 
@@ -467,6 +513,7 @@
     %Array_Size                 =  4&     'Memory size allocated for the array. This will not compute the memory needed for strings
     %Array_ElementsType         = 10&     'Type of elements strored into the array. See equates for thinBasic_VariableGetInfo
     %Array_ElementsAreFixed     = 15&     '%TRUE if elements are fixed size, like fixed strings or UDT
+    %Array_PtrToData            = 30&     'Pointer to memory area holding data
 
     %Array_UBoundDim_1          = 91&     'Returns the Upper Bound of dimension 1
     %Array_UBoundDim_2          = 92&     'Returns the Upper Bound of dimension 2
@@ -853,6 +900,22 @@
                           ) As Long
 
   '----------------------------------------------------------------------------
+  'thinBasic_GetKeywordSpeficic_Single
+  '----------------------------------------------------------------------------
+  ' Instruct parser to get next token, test if it a keyword and if yes,
+  ' check if it is the one requested keyword. If not, a RT-Error
+  ' will be generated
+  '----------------------------------------------------------------------------
+  Declare Function  thinBasic_GetKeywordSpeficic_Single                  _
+                          Lib "thinCore.DLL"                      _
+                          Alias "thinBasic_GetKeywordSpeficic_Single"    _
+                          (                                       _
+                                      ByVal HideError   As Long , _
+                                      ByVal AutoPutBack As Long , _
+                                      ByVal lKey1       As Long   _
+                          ) As Long
+
+  '----------------------------------------------------------------------------
   'thinBasic_VariableParse
   '----------------------------------------------------------------------------
   ' Instruct parser to get next token, check if variable, check if array and
@@ -1142,9 +1205,10 @@
   '               will be put back into parsing stack
   '
   '----------------------------------------------------------------------------
-  DECLARE SUB       thinBasic_ParseNumber                 LIB "thinCore.DLL" ALIAS "thinBasic_ParseNumber"                (Result AS EXT)
+  Declare Sub       thinBasic_ParseNumber                 Lib "thinCore.DLL" Alias "thinBasic_ParseNumber"                (Result As Ext)
   Declare Sub       thinBasic_ParseLong                   Lib "thinCore.DLL" Alias "thinBasic_ParseLong"                  (Result As Long)
   Declare Sub       thinBasic_ParseDWord                  Lib "thinCore.DLL" Alias "thinBasic_ParseDWord"                 (Result As Dword)
+  Declare Sub       thinBasic_ParseDouble                 Lib "thinCore.DLL" Alias "thinBasic_ParseDouble"                (Result As Double)
   Declare Function  thinBasic_ParseLong_Optional          Lib "thinCore.DLL" Alias "thinBasic_ParseLong"                  (Result As Long) As Long
   '---
 
@@ -1157,7 +1221,7 @@
   declare function  thinBasic_Parse7Numbers               lib "thinCore.DLL" alias "thinBasic_Parse7Numbers"              (Num1 as ext, Num2 as ext, Num3 as ext, Num4 as ext, Num5 as ext, Num6 as ext, Num7 as ext) as ext
   '---
 
-  Declare Function  thinBasic_Parse2Numbers1String        Lib "thinCore.DLL" Alias "thinBasic_Parse3Numbers1String"       (Num1 As Ext, Num2 As Ext, s1 As String) As Ext
+  Declare Function  thinBasic_Parse2Numbers1String        Lib "thinCore.DLL" Alias "thinBasic_Parse2Numbers1String"       (Num1 As Ext, Num2 As Ext, s1 As String) As Ext
   Declare Function  thinBasic_Parse3Numbers1String        Lib "thinCore.DLL" Alias "thinBasic_Parse3Numbers1String"       (Num1 As Ext, Num2 As Ext, Num3 As Ext, s1 As String) As Ext
   '---
 
@@ -1176,6 +1240,27 @@
                                                                       Num9  AS EXT    , _
                                                                       Num10 AS EXT      _
                                                           ) as ext
+
+  Declare Function  thinBasic_ParseXNumbersExt            Lib "thinCore.DLL" _
+                                                          Alias "thinBasic_ParseXNumbersExt" _
+                                                          ( _
+                                                            ByVal MinNumToParse As Long, ByVal MaxNumToParse As Long, _
+                                                                      Num1  As Ext    , _
+                                                            Optional  Num2  As Ext    , _
+                                                                      Num3  As Ext    , _
+                                                                      Num4  As Ext    , _
+                                                                      Num5  As Ext    , _
+                                                                      Num6  As Ext    , _
+                                                                      Num7  As Ext    , _
+                                                                      Num8  As Ext    , _
+                                                                      Num9  As Ext    , _
+                                                                      Num10 As Ext    , _
+                                                                      Num11 As Ext    , _
+                                                                      Num12 As Ext    , _
+                                                                      Num13 As Ext    , _
+                                                                      Num14 As Ext    , _
+                                                                      Num15 As Ext      _
+                                                          ) As Ext
   '---
   declare function  thinBasic_Parse1StringXNumbers        lib "thinCore.DLL" _
                                                           alias "thinBasic_Parse1StringXNumbers" _
@@ -1195,6 +1280,32 @@
                                                           ) as ext
 
   '---
+  Declare Function  thinBasic_Parse1String2Numbers        Lib "thinCore.DLL" _
+                                                          Alias "thinBasic_Parse1String2Numbers" _
+                                                          ( _
+                                                                      Str1  As String , _
+                                                                      Num1  As Ext    , _
+                                                                      Num1  As Ext      _
+                                                          ) As Ext
+
+  '---
+  Declare Function  thinBasic_Parse1Number2Strings        Lib "thinCore.DLL" _
+                                                          Alias "thinBasic_Parse1Number2Strings" _
+                                                          ( _
+                                                                      Num1  As Ext    , _
+                                                                      Str1  As String , _
+                                                                      Str2  As String   _
+                                                          ) As Ext
+
+  '---
+  Declare Function  thinBasic_Parse1Number1String         Lib "thinCore.DLL" _
+                                                          Alias "thinBasic_Parse1Number1String" _
+                                                          ( _
+                                                                      Num1  As Ext    , _
+                                                                      Str1  As String   _
+                                                          ) As Ext
+
+  '---
   ' Parse one string expression including possible "(" and ")" before and after the string
   ' This function is the equavalent of the numeric thinBasic_Parse1Number 
   Declare Function  thinBasic_Parse1String                Lib "thinCore.DLL" Alias "thinBasic_Parse1String"               () As String
@@ -1210,6 +1321,24 @@
   '---
   ' Parse a variant variable (scalar or array) and returns its pointer
   Declare Function  thinBasic_ParseVariant                Lib "thinCore.DLL" Alias "thinBasic_ParseVariant"               () As Dword
+
+
+  '---
+'  Declare Function  thinBasic_ParseParamatersByPtr        Lib "thinCore.DLL" _
+'                                                          Alias "thinBasic_ParseParamatersByPtr" _
+'                                                          ( _
+'                                                                      ByVal sParamTypes As String, _
+'                                                                      ByVal pParam1     As Dword, _
+'                                                            Optional  ByVal pParam2     As Dword, _
+'                                                                      ByVal pParam3     As Dword, _
+'                                                                      ByVal pParam4     As Dword, _
+'                                                                      ByVal pParam5     As Dword, _
+'                                                                      ByVal pParam6     As Dword, _
+'                                                                      ByVal pParam7     As Dword, _
+'                                                                      ByVal pParam8     As Dword, _
+'                                                                      ByVal pParam9     As Dword, _
+'                                                                      ByVal pParam10    As Dword  _
+'                                                          ) As Long
 
 
   DECLARE FUNCTION  thinBasic_CheckOpenParens             LIB "thinCore.DLL" ALIAS "thinBasic_CheckOpenParens"            (OPTIONAL BYVAL HideError AS LONG, BYVAL AutoPutBack AS LONG) AS LONG
@@ -1411,6 +1540,24 @@
                              Optional ByVal AdditionalInfo  As String   _
                           ) As Long
 
+  '----------------------------------------------------------------------------
+  'thinBasic_GetControllingLevels
+  '----------------------------------------------------------------------------
+  ' Return current nidification levels of commonly used flow controlling keywords
+  ' All parameters are LONGs passed BYREF and are used to get back levels
+  ' from thinBasic Core Engine
+  '----------------------------------------------------------------------------
+  Declare Function thinBasic_GetControllingLevels                       _
+                          Lib "thinCore.dll"                            _
+                          Alias "thinBasic_GetControllingLevels"        _
+                          ( _
+                                      ByRef Level_If     As Long      , _
+                                      ByRef Level_Select As Long      , _
+                                      ByRef Level_For    As Long      , _
+                                      ByRef Level_While  As Long      , _
+                                      ByRef Level_Do     As Long        _
+                           ) As Long
+
   '------------------------------------------------------------------------------
   ' RunTime Errors Codes
   '------------------------------------------------------------------------------
@@ -1502,6 +1649,10 @@
   %ERR__TOKEN_NOT_EXPECTED                    =  77&
                                               
   %ERR__INCLUDE_FILE_NOT_FOUND                =  80&
+  %ERR__INCLUDE_FILE_NOT_FOUND_INET_GENERIC   =  81&
+  %ERR__INCLUDE_FILE_NOT_FOUND_INET_CONNECTION=  82&
+  %ERR__INCLUDE_FILE_NOT_FOUND_INET_OPENURL   =  83&
+  %ERR__INCLUDE_FILE_NOT_FOUND_INET_404       =  84&
 
   %ERR__DIM_UNEXPECTED_KEYWORD                =  85&
                                               
@@ -1609,13 +1760,18 @@
   %ERR__CLASS_NEW_NOCLASS                     = 5020&
   %ERR__CLASS_NEW_EXPECTED_NEW                = 5025&
   %ERR__CLASS_NOT_INIT_WITH_NEW               = 5030&
+  %ERR__CLASS_SET_NOW_ALLOWED                 = 5035&
+  
   %ERR__CLASS_METHODPROPERTY_NOTFOUND         = 5100&
+  %ERR__CLASS_EXPECTED                        = 5110&
 
   %ERR__TRACE_STOP_BY_USER                    = 11000& 
                                               
   %ERR__OBFUSCATION_FILENOTVALID              = 12000&
                                               
   %ERR__COM_GENERIC                           = 30000&
+
+  %ERR__GENERIC                               = 62000&
 
   
 
@@ -1649,6 +1805,18 @@
                             ) As Long
   '----------------------------------------------------------------------------
 
+  '----------------------------------------------------------------------------
+  'thinBasic_ParseClass
+  '----------------------------------------------------------------------------
+  ' Return pointer to a class. Use it to map your internal module class
+  '----------------------------------------------------------------------------
+    Declare Function thinBasic_ParseClass                               _
+                            Lib   "thinCore.dll"                        _
+                            Alias "thinBasic_ParseClass"                _
+                            (                                           _
+                            ) As Long
+  '----------------------------------------------------------------------------
+
   %Class_Action_None          = 0?
   %Class_Action_Get           = 1?
   %Class_Action_Set           = 2?
@@ -1671,4 +1839,44 @@
                                 ByVal PtrToPropertyFunction As Long     _     '---Pointer to a method function that will handle method execution       
                              ) As Long
  
-     
+
+  '----------------------------------------------------------------------------
+  'thinBasic_IsBundled
+  '----------------------------------------------------------------------------
+  ' %TRUE if current execution is started from a bundled executable
+  '----------------------------------------------------------------------------
+  Declare Function thinBasic_IsBundled                                  _
+                            Lib   "thinCore.dll"                        _
+                            Alias "thinBasic_IsBundled"                 _
+                            (                                           _
+                            ) As Long
+
+  '----------------------------------------------------------------------------
+  'thinBasic_IsIsolated
+  '----------------------------------------------------------------------------
+  ' %TRUE if current execution is started from a bundled executable and
+  ' isolation mode is taking place. In isolation mode all modules/dlls are
+  ' extracted into a temp directory created at script runtime and
+  ' destroyed when script stop execution
+  '----------------------------------------------------------------------------
+  ' If script is bundled also Isoaltion is %TRUE
+  ' In future maybe execution of script and extraction of modules will
+  ' take place directly from memory
+  '----------------------------------------------------------------------------
+  Declare Function thinBasic_IsIsolated                                 _
+                            Lib   "thinCore.dll"                        _
+                            Alias "thinBasic_IsIsolated"                _
+                            (                                           _
+                            ) As Long
+  
+  '----------------------------------------------------------------------------
+  'thinBasic_IsolationPath
+  '----------------------------------------------------------------------------
+  ' Returns isoaltion path. See thinBasic_IsIsolated
+  '----------------------------------------------------------------------------
+  Declare Function thinBasic_IsolationPath                              _
+                            Lib   "thinCore.dll"                        _
+                            Alias "thinBasic_IsolationPath"             _
+                            (                                           _
+                            ) As String
+    
