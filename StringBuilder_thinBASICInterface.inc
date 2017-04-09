@@ -28,6 +28,8 @@ FUNCTION StringBuilder_LoadSymbols() AS LONG
     thinBasic_Class_AddProperty(pStringBuilder, "Length", %thinBasic_ReturnCodeLong , CODEPTR(StringBuilder_Property_Length))
     thinBasic_Class_AddProperty(pStringBuilder, "Capacity", %thinBasic_ReturnCodeLong , CODEPTR(StringBuilder_Property_Capacity))
 
+    thinBasic_Class_AddProperty(pStringBuilder, "DataPTR", %thinBasic_ReturnCodeDWord , CODEPTR(StringBuilder_Property_DataPtr))
+
     FUNCTION = 0
   ELSE
     FUNCTION = 1
@@ -265,6 +267,22 @@ FUNCTION StringBuilder_Property_Capacity(BYVAL pObject AS LONG, BYVAL lAction AS
         END IF
       END IF
 
+
+  END SELECT
+
+END FUNCTION
+
+FUNCTION StringBuilder_Property_DataPtr(BYVAL pObject AS LONG, BYVAL lAction AS LONG) AS LONG
+
+  REDIM oObject(1& TO 1&) AS iThinStringBuilder AT pObject
+
+  SELECT CASE LONG lAction
+
+    CASE %Class_Action_Get
+      FUNCTION = oObject(1&).DataPtr
+
+    CASE %Class_Action_Set
+      thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Assignment to DataPtr is not supported." )
 
   END SELECT
 

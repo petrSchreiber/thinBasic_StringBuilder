@@ -145,6 +145,10 @@ CLASS thinStringBuilder
 
     END PROPERTY
 
+    PROPERTY GET DataPtr() AS DWORD
+      PROPERTY = STRPTR(internalBuffer)
+    END PROPERTY
+
     METHOD ToString() AS STRING
       METHOD = LEFT$(internalBuffer, internalLength)
     END METHOD

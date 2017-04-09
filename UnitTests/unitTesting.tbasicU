@@ -256,14 +256,14 @@ End Function
 ' -- Is value TRUE?
 Function ut_assertIsTrue(ByVal aValue As Number, Optional aComment As String ) As Long
 
-  If (aValue = TRUE) Then
+  If (aValue = FALSE) Then
     
-    Return TRUE             
+    internal_ut_RaiseFail("Expected " + aValue + " = " + Format$(TRUE) + "(= TRUE)" + IIf$(len(aComment), "[" + aComment + "]", ""))      
+    Return FALSE
     
   Else
   
-    internal_ut_RaiseFail("Expected " + aValue + " = " + Format$(TRUE) + "(= TRUE)" + IIf$(len(aComment), "[" + aComment + "]", ""))      
-    Return FALSE
+    Return TRUE    
       
   End If
 

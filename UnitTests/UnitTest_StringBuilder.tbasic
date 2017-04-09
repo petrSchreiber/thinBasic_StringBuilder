@@ -151,3 +151,40 @@ Function test_CharCode_FirstChanged_CorrectOutput()
   ut_assertEqual("Aiao", sb.ToString())
   
 End Function
+
+Function test_DataPtr_Read_ContainsValue()
+
+  Dim sb As StringBuilder
+  sb = New StringBuilder()
+  
+  ut_assertIsTrue(sb.DataPTR > 0)
+  
+End Function
+
+Function test_DataPtr_ReadAfterChange_ContainsDifferentValue()
+
+  Dim sb As StringBuilder
+  sb = New StringBuilder()
+  
+  dword firstPointer = sb.DataPTR
+  
+  sb.Add(CHR$(0 to 255))
+  
+  dword secondPointer = sb.DataPTR
+  
+  ut_assertIsTrue(firstPointer <> secondPointer)
+  
+End Function
+
+Function test_DataPtr_Read_PointsToString()
+
+  Dim sb As StringBuilder
+  sb = New StringBuilder()
+  
+  sb.Add("Ciao")
+  
+  dim s as string * 4 at sb.DataPtr
+  
+  ut_assertEqualText("Ciao", s)
+  
+End Function
