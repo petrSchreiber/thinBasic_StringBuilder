@@ -62,7 +62,9 @@ CLASS thinStringBuilder
 
     METHOD CLEAR()
 
-      RESET internalCapacity, internalLength, internalBuffer
+      internalCapacity = 16
+      internalLength   = 0
+      internalBuffer   = NUL$(internalCapacity)
 
     END METHOD
 

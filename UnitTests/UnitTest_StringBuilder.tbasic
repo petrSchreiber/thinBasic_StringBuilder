@@ -43,8 +43,7 @@ End Function
 
 Function test_Constructor_NoValuePassed_CapacityEquals16()
 
-  Dim sb As StringBuilder
-  sb = New StringBuilder()
+  Dim sb As New StringBuilder()
   
   ut_assertEqual(16, sb.Capacity)
   
@@ -52,8 +51,7 @@ End Function
 
 Function test_Constructor_CapacityForced_CapacityExists()
 
-  Dim sb As StringBuilder
-  sb = New StringBuilder(128)
+  Dim sb As New StringBuilder(128)
   
   ut_assertEqual(128, sb.Capacity)
   
@@ -61,8 +59,7 @@ End Function
 
 Function test_Constructor_TextForced_CapacityExists()
 
-  Dim sb As StringBuilder
-  sb = New StringBuilder("Ciao")
+  Dim sb As New StringBuilder("Ciao")
   
   ut_assertEqual("Ciao", sb.ToString())
   
@@ -72,8 +69,7 @@ End Function
 
 Function test_Add_TextAddedOnce_PresentInBuffer()
 
-  Dim sb As StringBuilder
-  sb = New StringBuilder()
+  Dim sb As New StringBuilder()
   
   sb.Add("Ciao")
   
@@ -83,8 +79,7 @@ End Function
 
 Function test_Add_TextAddedTwice_PresentInBuffer()
 
-  Dim sb As StringBuilder
-  sb = New StringBuilder()
+  Dim sb As New StringBuilder()
   
   sb.Add("thin")
   sb.Add("BASIC")
@@ -95,8 +90,7 @@ End Function
 
 Function test_Add_TextAddedTwiceWithOneLineSyntax_PresentInBuffer()
 
-  Dim sb As StringBuilder
-  sb = New StringBuilder()
+  Dim sb As New StringBuilder()
   
   sb.Add("thin", "BASIC")
   
@@ -106,8 +100,7 @@ End Function
 
 Function test_AddLine_TextAddedTwice_PresentInBuffer()
 
-  Dim sb As StringBuilder
-  sb = New StringBuilder()
+  Dim sb As New StringBuilder()
   
   sb.AddLine("thin")
   sb.AddLine("BASIC")
@@ -118,8 +111,7 @@ End Function
 
 Function test_Length_TextAdded_CorrectLengthReported()
 
-  Dim sb As StringBuilder
-  sb = New StringBuilder()
+  Dim sb As New StringBuilder()
   
   sb.Add("thin")
   sb.Add("BASIC")
@@ -130,8 +122,7 @@ End Function
 
 Function test_Char_FirstChanged_CorrectOutput()
 
-  Dim sb As StringBuilder
-  sb = New StringBuilder()
+  Dim sb As New StringBuilder()
   
   sb.Add("Ciao")     
   sb.Char(1) = "X"
@@ -142,8 +133,7 @@ End Function
 
 Function test_CharCode_FirstChanged_CorrectOutput()
 
-  Dim sb As StringBuilder
-  sb = New StringBuilder()
+  Dim sb As New StringBuilder()
   
   sb.Add("Ciao")                             
   sb.CharCode(1) = 65
@@ -154,18 +144,16 @@ End Function
 
 Function test_DataPtr_Read_ContainsValue()
 
-  Dim sb As StringBuilder
-  sb = New StringBuilder()
-  
+  Dim sb As New StringBuilder()
+    
   ut_assertIsTrue(sb.DataPTR > 0)
   
 End Function
 
 Function test_DataPtr_ReadAfterChange_ContainsDifferentValue()
 
-  Dim sb As StringBuilder
-  sb = New StringBuilder()
-  
+  Dim sb As New StringBuilder()
+    
   dword firstPointer = sb.DataPTR
   
   sb.Add(CHR$(0 to 255))
@@ -178,13 +166,34 @@ End Function
 
 Function test_DataPtr_Read_PointsToString()
 
-  Dim sb As StringBuilder
-  sb = New StringBuilder()
-  
+  Dim sb As New StringBuilder()
+    
   sb.Add("Ciao")
   
   dim s as string * 4 at sb.DataPtr
   
   ut_assertEqualText("Ciao", s)
+  
+End Function
+
+Function test_Clear_Called_ResetsLength()
+
+  Dim sb As New StringBuilder()
+  
+  sb.Add("Ciao")
+  sb.Clear()
+  
+  ut_assertEqual(0, sb.Length)  
+  
+End Function
+
+Function test_Clear_Called_ResetsCapacityToDefault()
+
+  Dim sb As New StringBuilder()
+  
+  sb.Add("Ciao")
+  sb.Clear()
+  
+  ut_assertEqual(16, sb.Capacity)  
   
 End Function
