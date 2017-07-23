@@ -4,25 +4,27 @@
 
 CLASS thinStringBuilder
 
+  INSTANCE defaultCapacity  AS LONG
   INSTANCE internalCapacity AS LONG
   INSTANCE internalLength   AS LONG
-  INSTANCE internalBuffer AS STRING
+  INSTANCE internalBuffer   AS STRING
 
   CLASS METHOD CREATE()
-    internalCapacity = 16
-    internalLength   = 0
+    defaultCapacity  = 16
   END METHOD
 
   INTERFACE iThinStringBuilder
     INHERIT IUNKNOWN
 
     METHOD Initialize1()
-      internalBuffer = NUL$(internalCapacity)
+      internalBuffer   = NUL$(defaultCapacity)
+      internalCapacity = len(internalBuffer)
+      internalLength   = 0
     END METHOD
 
     METHOD Initialize2( initialCapacity AS LONG )
-      internalCapacity = initialCapacity
-      internalBuffer = NUL$(internalCapacity)
+      defaultCapacity = initialCapacity
+      me.Initialize1()
     END METHOD
 
     METHOD Initialize3( initialContent AS STRING )
@@ -63,9 +65,7 @@ CLASS thinStringBuilder
 
     METHOD CLEAR()
 
-      internalCapacity = 16
-      internalLength   = 0
-      internalBuffer   = NUL$(internalCapacity)
+      me.Initialize1()
 
     END METHOD
 
