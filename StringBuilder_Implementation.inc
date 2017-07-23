@@ -61,9 +61,9 @@ CLASS thinStringBuilder
     END METHOD
 
     METHOD CLEAR()
-      internalCapacity = 0
-      internalLength = 0
-      internalBuffer = ""
+
+      RESET internalCapacity, internalLength, internalBuffer
+
     END METHOD
 
     PROPERTY GET Capacity AS LONG
@@ -98,7 +98,7 @@ CLASS thinStringBuilder
     PROPERTY GET Char( position AS LONG ) AS STRING
 
       IF position > internalLength THEN
-        thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Position is outside text length. Passed:" + STR$(position) + ", Length:"+STR$(internalLength) )
+        thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Position is outside text length. Passed:" + STR$(position) + ", Length:" + STR$(internalLength) )
         EXIT PROPERTY
       END IF
 
@@ -109,7 +109,7 @@ CLASS thinStringBuilder
     PROPERTY SET Char( position AS LONG, value AS STRING )
 
       IF position > internalLength THEN
-        thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Position is outside text length. Passed:" + STR$(position) + ", Length:"+STR$(internalLength) )
+        thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Position is outside text length. Passed:" + STR$(position) + ", Length:" + STR$(internalLength) )
         EXIT PROPERTY
       END IF
 
@@ -124,7 +124,7 @@ CLASS thinStringBuilder
     PROPERTY GET CharCode( position AS LONG ) AS BYTE
 
       IF position > internalLength THEN
-        thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Position is outside text length. Passed:" + STR$(position) + ", Length:"+STR$(internalLength) )
+        thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Position is outside text length. Passed:" + STR$(position) + ", Length:" + STR$(internalLength) )
         EXIT PROPERTY
       END IF
 
@@ -136,7 +136,7 @@ CLASS thinStringBuilder
     PROPERTY SET CharCode( position AS LONG, value AS BYTE )
 
       IF position > internalLength THEN
-        thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Position is outside text length. Passed:" + STR$(position) + ", Length:"+STR$(internalLength) )
+        thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Position is outside text length. Passed:" + STR$(position) + ", Length:" + STR$(internalLength) )
         EXIT PROPERTY
       END IF
 
