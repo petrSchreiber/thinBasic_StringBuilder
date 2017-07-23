@@ -240,3 +240,13 @@ Function test_Clear_Called_ResetsCapacityToInitial()
   ut_assertEqual(128, sb.Capacity)  
   
 End Function
+
+Function test_Clear_Called_ResetsCapacityToInitialSetByText()
+
+  Dim sb As New StringBuilder("Ciao")
+  
+  sb.Clear()
+  
+  ut_assertEqual(8, sb.Capacity)  
+  
+End Function
