@@ -60,8 +60,8 @@ End Function
 Function test_Constructor_TextForced_CapacityExists()
 
   Dim sb As New StringBuilder("Ciao")
-  
-  ut_assertEqual("Ciao", sb.ToString())
+
+  ut_assertEqualText("Ciao", sb.ToString())
   
 End Function
 

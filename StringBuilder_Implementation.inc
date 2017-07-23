@@ -26,6 +26,7 @@ CLASS thinStringBuilder
     END METHOD
 
     METHOD Initialize3( initialContent AS STRING )
+      me.Initialize2(len(initialContent) * 2)
       me.Add(initialContent)
     END METHOD
 
