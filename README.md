@@ -18,6 +18,6 @@ Clone [module_core](https://github.com/ThinBASIC/module_core) in a way it is pla
 PowerBASIC for Windows, v10.04
 * Default compiler Win32 API headers used
 
-Compile the thinBasic_stringBuilder.rc to thinBasic_stringBuilder.res.
+Compile the _thinBasic_stringBuilder.rc_ to _thinBasic_stringBuilder.res_.
  
-Compile the thinBasic_stringBuilder.bas and copy it to thinBasic lib/ directory.
+Compile the _thinBasic_stringBuilder.bas_ and copy DLL to thinBasic lib/ directory.
