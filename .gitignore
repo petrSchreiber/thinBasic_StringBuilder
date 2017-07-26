@@ -3,6 +3,8 @@
 *.dll
 *.bak
 *.lnx
+*.rclog
+*.RES
 Backup.*.*
 UnitTests/unitTest.txt
 1.*
