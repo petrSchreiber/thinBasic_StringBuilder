@@ -1,4 +1,3 @@
-#include "resource.h"
 #include "..\module_core\Version.h"
 
 
