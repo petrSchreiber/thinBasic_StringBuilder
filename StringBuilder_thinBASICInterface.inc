@@ -2,288 +2,318 @@
 ' StringBuilder thinBASIC interface
 '
 
-#INCLUDE "StringBuilder_Implementation.inc"
+#Include Once "StringBuilder_Implementation.inc"
 
-' -----------------------------------------------------------------------------
+  '-----------------------------------------------------------------------------
+  Function StringBuilder_LoadSymbols() As Long
+  '-----------------------------------------------------------------------------  
+    Local RetCode         As Long
+    Local pStringBuilder  As Dword
+  
+    pStringBuilder = thinBasic_Class_Add("StringBuilder", 0)
+  
+    If pStringBuilder Then
+  
+      thinBasic_Class_AddMethod   (pStringBuilder, "_Create"    , %thinBasic_ReturnNone       , CodePtr(StringBuilder_Create)           )
+      thinBasic_Class_AddMethod   (pStringBuilder, "_Destroy"   , %thinBasic_ReturnNone       , CodePtr(StringBuilder_Destroy)          )
+  
+      thinBasic_Class_AddMethod   (pStringBuilder, "Add"        , %thinBasic_ReturnCodeLong   , CodePtr(StringBuilder_Add)              )
+      thinBasic_Class_AddMethod   (pStringBuilder, "AddLine"    , %thinBasic_ReturnCodeLong   , CodePtr(StringBuilder_AddLine)          )
 
-FUNCTION StringBuilder_LoadSymbols() AS LONG
+      thinBasic_Class_AddMethod   (pStringBuilder, "Clear"      , %thinBasic_ReturnCodeLong   , CodePtr(StringBuilder_Clear)            )
+      thinBasic_Class_AddMethod   (pStringBuilder, "ToString"   , %thinBasic_ReturnString     , CodePtr(StringBuilder_ToString)         )
+  
+      thinBasic_Class_AddProperty (pStringBuilder, "Char"       , %thinBasic_ReturnString     , CodePtr(StringBuilder_Property_Char)    )
+      thinBasic_Class_AddProperty (pStringBuilder, "CharCode"   , %thinBasic_ReturnCodeByte   , CodePtr(StringBuilder_Property_CharCode))
 
-  LOCAL RetCode AS LONG
-  LOCAL pStringBuilder AS LONG
+      thinBasic_Class_AddProperty (pStringBuilder, "Length"     , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_Length)  )
+      thinBasic_Class_AddProperty (pStringBuilder, "Capacity"   , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_Capacity))
+  
+      thinBasic_Class_AddProperty (pStringBuilder, "DataPTR"    , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_DataPtr) )
+      thinBasic_Class_AddProperty (pStringBuilder, "VarPTR"     , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_VarPtr)  )
+  
+      Function = 0
+    Else
+      Function = 1
+    End If
+  
+  End Function
 
-  pStringBuilder = thinBasic_Class_Add("StringBuilder", 0)
-
-  IF pStringBuilder THEN
-
-    thinBasic_Class_AddMethod(pStringBuilder, "_Create", %thinBasic_ReturnNone , CODEPTR(StringBuilder_Create))
-    thinBasic_Class_AddMethod(pStringBuilder, "_Destroy", %thinBasic_ReturnNone , CODEPTR(StringBuilder_Destroy))
-
-    thinBasic_Class_AddMethod(pStringBuilder, "Add", %thinBasic_ReturnCodeLong , CODEPTR(StringBuilder_Add))
-    thinBasic_Class_AddMethod(pStringBuilder, "AddLine", %thinBasic_ReturnCodeLong , CODEPTR(StringBuilder_AddLine))
-    thinBasic_Class_AddMethod(pStringBuilder, "Clear", %thinBasic_ReturnCodeLong , CODEPTR(StringBuilder_Clear))
-    thinBasic_Class_AddMethod(pStringBuilder, "ToString", %thinBasic_ReturnString , CODEPTR(StringBuilder_ToString))
-
-    thinBasic_Class_AddProperty(pStringBuilder, "Char", %thinBasic_ReturnString , CODEPTR(StringBuilder_Property_Char))
-    thinBasic_Class_AddProperty(pStringBuilder, "CharCode", %thinBasic_ReturnCodeByte , CODEPTR(StringBuilder_Property_CharCode))
-    thinBasic_Class_AddProperty(pStringBuilder, "Length", %thinBasic_ReturnCodeLong , CODEPTR(StringBuilder_Property_Length))
-    thinBasic_Class_AddProperty(pStringBuilder, "Capacity", %thinBasic_ReturnCodeLong , CODEPTR(StringBuilder_Property_Capacity))
-
-    thinBasic_Class_AddProperty(pStringBuilder, "DataPTR", %thinBasic_ReturnCodeDWord , CODEPTR(StringBuilder_Property_DataPtr))
-
-    FUNCTION = 0
-  ELSE
-    FUNCTION = 1
-  END IF
-END FUNCTION
-
-' -----------------------------------------------------------------------------
-
-SUB StringBuilder_Create(BYVAL pObject AS LONG)
-
-  DIM oObject(1& TO 1&) AS iThinStringBuilder AT pObject
-
-  oObject(1&) = CLASS "thinStringBuilder"
-
-  IF ISNOTHING(oObject(1&)) THEN
-    thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Failed to instantiate StringBuilder" )
-  END IF
-
-  DIM initialCapacity AS EXT
-  DIM initialText AS STRING
-  IF thinBasic_CheckOpenParens_Optional() AND thinBasic_ErrorFree() THEN
-
-    IF thinBasic_CheckCloseParens_Optional() AND thinBasic_ErrorFree() THEN
+  '-----------------------------------------------------------------------------
+  Sub StringBuilder_Create(ByVal pObject As Dword)
+  '-----------------------------------------------------------------------------
+  
+    Dim oObject(1& To 1&) As iThinStringBuilder At pObject
+  
+    oObject(1&) = Class "thinStringBuilder"
+  
+    If IsNothing(oObject(1&)) Then
+      thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Failed to instantiate StringBuilder" )
+    End If
+  
+    Dim initialCapacity As Ext
+    Dim initialText As String 
+    
+    If thinBasic_CheckOpenParens_Optional() And thinBasic_ErrorFree() Then
+  
+      If thinBasic_CheckCloseParens_Optional() And thinBasic_ErrorFree() Then
+        oObject(1&).Initialize1()
+      Else
+  
+        Select Case thinBasic_DetermineType
+          Case %thinBasic_ReturnNumber
+            thinBasic_ParseNumber initialCapacity
+  
+            If thinBasic_CheckCloseParens_Mandatory() And thinBasic_ErrorFree() Then
+              oObject(1&).Initialize2(ByCopy initialCapacity)
+            End If
+  
+          Case %thinBasic_ReturnString
+            thinBasic_ParseString initialText
+  
+            If thinBasic_CheckCloseParens_Mandatory() And thinBasic_ErrorFree() Then
+              oObject(1&).Initialize3(initialText)
+            End If
+        End Select
+  
+      End If
+    Else
       oObject(1&).Initialize1()
-    ELSE
+    End If
+  
+  End Sub
 
-      SELECT CASE thinBasic_DetermineType
-        CASE %thinBasic_ReturnNumber
-          thinBasic_ParseNumber initialCapacity
+  '-----------------------------------------------------------------------------
+  Function StringBuilder_Destroy(ByVal pObject As Dword) As Long
+  '-----------------------------------------------------------------------------  
+    Dim oObject(1& To 1&) As iThinStringBuilder At pObject 
+    
+    oObject(1&) = Nothing
+  
+  End Function
 
-          IF thinBasic_CheckCloseParens_Mandatory() AND thinBasic_ErrorFree() THEN
-            oObject(1&).Initialize2(BYCOPY initialCapacity)
-          END IF
-
-        CASE %thinBasic_ReturnString
-          thinBasic_ParseString initialText
-
-          IF thinBasic_CheckCloseParens_Mandatory() AND thinBasic_ErrorFree() THEN
-            oObject(1&).Initialize3(initialText)
-          END IF
-      END SELECT
-
-    END IF
-  ELSE
-    oObject(1&).Initialize1()
-  END IF
-
-END SUB
-
-FUNCTION StringBuilder_Destroy(BYVAL pObject AS LONG) AS LONG
-
-  DIM oObject(1& TO 1&) AS iThinStringBuilder AT pObject
-  oObject(1&) = NOTHING
-
-END FUNCTION
-
-' -----------------------------------------------------------------------------
-
-FUNCTION StringBuilder_Add(BYVAL pObject AS LONG) AS LONG
-
-  DIM oObject(1& TO 1&) AS iThinStringBuilder AT pObject
-
-  DIM addedText AS STRING
-  IF thinBasic_CheckOpenParens_Mandatory() AND thinBasic_ErrorFree() THEN
-    thinBasic_ParseString addedText
-
-    IF thinBasic_ErrorFree() THEN
-      oObject(1&).Add(addedText)
-    END IF
-
-    WHILE thinBasic_CheckComma_Optional() AND thinBasic_ErrorFree()
+  '-----------------------------------------------------------------------------
+  Function StringBuilder_Add(ByVal pObject As Dword) As Long
+  '-----------------------------------------------------------------------------  
+    Dim oObject(1& To 1&) As iThinStringBuilder At pObject
+  
+    Dim addedText As String
+    If thinBasic_CheckOpenParens_Mandatory() And thinBasic_ErrorFree() Then
       thinBasic_ParseString addedText
-      oObject(1&).Add(addedText)
-    WEND
+  
+      If thinBasic_ErrorFree() Then
+        oObject(1&).Add(addedText)
+      End If
+  
+      While thinBasic_CheckComma_Optional() And thinBasic_ErrorFree()
+        thinBasic_ParseString addedText
+        oObject(1&).Add(addedText)
+      Wend
+  
+      thinBasic_CheckCloseParens_Mandatory()
+  
+    End If
+  
+  End Function
 
-    thinBasic_CheckCloseParens_Mandatory()
+  '-----------------------------------------------------------------------------
+  Function StringBuilder_AddLine(ByVal pObject As Dword) As Long
+  '-----------------------------------------------------------------------------  
+    Dim oObject(1& To 1&) As iThinStringBuilder At pObject
+  
+    Dim addedText As String
+    If thinBasic_CheckOpenParens_Mandatory() And thinBasic_ErrorFree() Then
+      thinBasic_ParseString addedText
+  
+      If thinBasic_CheckCloseParens_Mandatory() And thinBasic_ErrorFree() Then
+        oObject(1&).AddLine(addedText)
+      End If
+    End If
+  
+  End Function
 
-  END IF
-
-END FUNCTION
-
-FUNCTION StringBuilder_AddLine(BYVAL pObject AS LONG) AS LONG
-
-  DIM oObject(1& TO 1&) AS iThinStringBuilder AT pObject
-
-  DIM addedText AS STRING
-  IF thinBasic_CheckOpenParens_Mandatory() AND thinBasic_ErrorFree() THEN
-    thinBasic_ParseString addedText
-
-    IF thinBasic_CheckCloseParens_Mandatory() AND thinBasic_ErrorFree() THEN
-      oObject(1&).AddLine(addedText)
-    END IF
-  END IF
-
-END FUNCTION
-
-FUNCTION StringBuilder_Clear(BYVAL pObject AS LONG) AS LONG
-
-  DIM oObject(1& TO 1&) AS iThinStringBuilder AT pObject
-
-  IF thinBasic_CheckOpenParens_Mandatory() AND thinBasic_ErrorFree() THEN
-    IF thinBasic_CheckCloseParens_Mandatory() AND thinBasic_ErrorFree() THEN
+  '-----------------------------------------------------------------------------
+  Function StringBuilder_Clear(ByVal pObject As Dword) As Long
+  '-----------------------------------------------------------------------------    
+    If thinBasic_CheckOpenParens_optional Then
+      thinBasic_CheckCloseParens_Mandatory
+    End If
+    
+    If thinBasic_ErrorFree Then
+      Dim oObject(1& To 1&) As iThinStringBuilder At pObject
       oObject(1&).Clear()
-    END IF
-  END IF
+    End If
+    
+  End Function
 
-END FUNCTION
+  '-----------------------------------------------------------------------------
+  Function StringBuilder_ToString(ByVal pObject As Dword) As String
+  '-----------------------------------------------------------------------------    
+    If thinBasic_CheckOpenParens_optional Then
+      thinBasic_CheckCloseParens_Mandatory
+    End If
+    
+    If thinBasic_ErrorFree Then                                   
+      Dim oObject(1& To 1&) As iThinStringBuilder At pObject  
+      Function = oObject(1&).ToString()
+    End If
+  
+  End Function
 
-FUNCTION StringBuilder_ToString(BYVAL pObject AS LONG) AS STRING
+  '-----------------------------------------------------------------------------
+  Function StringBuilder_Property_Char(ByVal pObject As Dword, ByVal lAction As Long) As String
+  '-----------------------------------------------------------------------------  
+    ReDim oObject(1& To 1&) As iThinStringBuilder At pObject
+  
+    Dim position As Ext
+    If thinBasic_CheckOpenParens_Mandatory() And thinBasic_ErrorFree() Then
+      thinBasic_ParseNumber position
+  
+      If thinBasic_CheckCloseParens_Mandatory() And thinBasic_ErrorFree() Then
+  
+        Select Case Long lAction
+  
+          Case %Class_Action_Get
+            Function = oObject(1&).Char(ByCopy position)
+  
+          Case %Class_Action_Set
+            Local lEqualType    As Long
+            lEqualType = thinBasic_CheckEqualType_Mandatory
+  
+            If thinBasic_ErrorFree Then
+              If lEqualType = %Equal_EQ Then
+                Dim character As String
+                thinBasic_ParseString character
+  
+                If thinBasic_ErrorFree Then
+                  oObject(&1).Char(ByCopy position) = character
+                End If
+              End If
+            End If
+  
+        End Select
+  
+      End If
+    End If
+  
+  End Function
 
-  DIM oObject(1& TO 1&) AS iThinStringBuilder AT pObject
-
-  IF thinBasic_CheckOpenParens_Mandatory() AND thinBasic_ErrorFree() THEN
-    IF thinBasic_CheckCloseParens_Mandatory() AND thinBasic_ErrorFree() THEN
-      FUNCTION = oObject(1&).ToString()
-    END IF
-  END IF
-
-END FUNCTION
-
-' -----------------------------------------------------------------------------
-
-FUNCTION StringBuilder_Property_Char(BYVAL pObject AS LONG, BYVAL lAction AS LONG) AS STRING
-
-  REDIM oObject(1& TO 1&) AS iThinStringBuilder AT pObject
-
-  DIM position AS EXT
-  IF thinBasic_CheckOpenParens_Mandatory() AND thinBasic_ErrorFree() THEN
-    thinBasic_ParseNumber position
-
-    IF thinBasic_CheckCloseParens_Mandatory() AND thinBasic_ErrorFree() THEN
-
-      SELECT CASE LONG lAction
-
-        CASE %Class_Action_Get
-          FUNCTION = oObject(1&).Char(BYCOPY position)
-
-        CASE %Class_Action_Set
-          LOCAL lEqualType    AS LONG
-          lEqualType = thinBasic_CheckEqualType_Mandatory
-
-          IF thinBasic_ErrorFree THEN
-            IF lEqualType = %Equal_EQ THEN
-              DIM character AS STRING
-              thinBasic_ParseString character
-
-              IF thinBasic_ErrorFree THEN
-                oObject(&1).Char(BYCOPY position) = character
-              END IF
-            END IF
-          END IF
-
-      END SELECT
-
-    END IF
-  END IF
-
-END FUNCTION
-
-FUNCTION StringBuilder_Property_CharCode(BYVAL pObject AS LONG, BYVAL lAction AS LONG) AS BYTE
-
-  REDIM oObject(1& TO 1&) AS iThinStringBuilder AT pObject
-
-  DIM position AS EXT
-  IF thinBasic_CheckOpenParens_Mandatory() AND thinBasic_ErrorFree() THEN
-    thinBasic_ParseNumber position
-
-    IF thinBasic_CheckCloseParens_Mandatory() AND thinBasic_ErrorFree() THEN
-
-      SELECT CASE LONG lAction
-
-        CASE %Class_Action_Get
-          FUNCTION = oObject(1&).CharCode(BYCOPY position)
-
-        CASE %Class_Action_Set
-          LOCAL lEqualType    AS LONG
-          lEqualType = thinBasic_CheckEqualType_Mandatory
-
-          IF thinBasic_ErrorFree THEN
-            IF lEqualType = %Equal_EQ THEN
-              DIM characterCode AS EXT
-              thinBasic_ParseNumber characterCode
-
-              IF thinBasic_ErrorFree THEN
-                oObject(&1).CharCode(BYCOPY position) = characterCode
-              END IF
-            END IF
-          END IF
-
-      END SELECT
-
-    END IF
-  END IF
-
-END FUNCTION
-
-
-FUNCTION StringBuilder_Property_Length(BYVAL pObject AS LONG, BYVAL lAction AS LONG) AS LONG
-
-  REDIM oObject(1& TO 1&) AS iThinStringBuilder AT pObject
-
-  SELECT CASE LONG lAction
-
-    CASE %Class_Action_Get
-      FUNCTION = oObject(1&).Length
-
-    CASE %Class_Action_Set
-      thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Assignment to Length is not supported." )
-
-  END SELECT
-
-END FUNCTION
-
-FUNCTION StringBuilder_Property_Capacity(BYVAL pObject AS LONG, BYVAL lAction AS LONG) AS LONG
-
-  REDIM oObject(1& TO 1&) AS iThinStringBuilder AT pObject
-
-  SELECT CASE LONG lAction
-
-    CASE %Class_Action_Get
-      FUNCTION = oObject(1&).Capacity
-
-    CASE %Class_Action_Set
-      LOCAL lEqualType    AS LONG
-      lEqualType = thinBasic_CheckEqualType_Mandatory
-
-      IF thinBasic_ErrorFree THEN
-        IF lEqualType = %Equal_EQ THEN
-          DIM capacity AS EXT
-          thinBasic_ParseNumber capacity
-
-          IF thinBasic_ErrorFree THEN
-            oObject(&1).Capacity = capacity
-          END IF
-        END IF
-      END IF
+  '-----------------------------------------------------------------------------
+  Function StringBuilder_Property_CharCode(ByVal pObject As Dword, ByVal lAction As Long) As Byte
+  '-----------------------------------------------------------------------------  
+    ReDim oObject(1& To 1&) As iThinStringBuilder At pObject
+  
+    Dim position As Ext
+    If thinBasic_CheckOpenParens_Mandatory() And thinBasic_ErrorFree() Then
+      thinBasic_ParseNumber position
+  
+      If thinBasic_CheckCloseParens_Mandatory() And thinBasic_ErrorFree() Then
+  
+        Select Case Long lAction
+  
+          Case %Class_Action_Get
+            Function = oObject(1&).CharCode(ByCopy position)
+  
+          Case %Class_Action_Set
+            Local lEqualType    As Long
+            lEqualType = thinBasic_CheckEqualType_Mandatory
+  
+            If thinBasic_ErrorFree Then
+              If lEqualType = %Equal_EQ Then
+                Dim characterCode As Ext
+                thinBasic_ParseNumber characterCode
+  
+                If thinBasic_ErrorFree Then
+                  oObject(&1).CharCode(ByCopy position) = characterCode
+                End If
+              End If
+            End If
+  
+        End Select
+  
+      End If
+    End If
+  
+  End Function
 
 
-  END SELECT
+  '-----------------------------------------------------------------------------
+  Function StringBuilder_Property_Length(ByVal pObject As Dword, ByVal lAction As Long) As Dword
+  '-----------------------------------------------------------------------------  
+    ReDim oObject(1& To 1&) As iThinStringBuilder At pObject
+  
+    Select Case Long lAction
+  
+      Case %Class_Action_Get
+        Function = oObject(1&).Length
+  
+      Case %Class_Action_Set
+        thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Assignment to Length is not supported." )
+  
+    End Select
+  
+  End Function
 
-END FUNCTION
+  '-----------------------------------------------------------------------------
+  Function StringBuilder_Property_Capacity(ByVal pObject As Dword, ByVal lAction As Long) As Dword
+  '-----------------------------------------------------------------------------  
+    ReDim oObject(1& To 1&) As iThinStringBuilder At pObject
+  
+    Select Case Long lAction
+  
+      Case %Class_Action_Get
+        Function = oObject(1&).Capacity
+  
+      Case %Class_Action_Set
+        Local lEqualType    As Long
+        lEqualType = thinBasic_CheckEqualType_Mandatory
+  
+        If thinBasic_ErrorFree Then
+          If lEqualType = %Equal_EQ Then
+            Dim capacity As Ext
+            thinBasic_ParseNumber capacity
+  
+            If thinBasic_ErrorFree Then
+              oObject(&1).Capacity = capacity
+            End If
+          End If
+        End If
+  
+  
+    End Select
+  
+  End Function
 
-FUNCTION StringBuilder_Property_DataPtr(BYVAL pObject AS LONG, BYVAL lAction AS LONG) AS LONG
+  '-----------------------------------------------------------------------------
+  Function StringBuilder_Property_DataPtr(ByVal pObject As Dword, ByVal lAction As Long) As Dword
+  '-----------------------------------------------------------------------------  
+    ReDim oObject(1& To 1&) As iThinStringBuilder At pObject
+  
+    Select Case Long lAction
+  
+      Case %Class_Action_Get
+        Function = oObject(1&).DataPtr
+  
+      Case %Class_Action_Set
+        thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Assignment to DataPtr is not supported." )
+  
+    End Select
+  
+  End Function
 
-  REDIM oObject(1& TO 1&) AS iThinStringBuilder AT pObject
-
-  SELECT CASE LONG lAction
-
-    CASE %Class_Action_Get
-      FUNCTION = oObject(1&).DataPtr
-
-    CASE %Class_Action_Set
-      thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Assignment to DataPtr is not supported." )
-
-  END SELECT
-
-END FUNCTION
+  '-----------------------------------------------------------------------------
+  Function StringBuilder_Property_VarPtr(ByVal pObject As Dword, ByVal lAction As Long) As Dword
+  '-----------------------------------------------------------------------------  
+    ReDim oObject(1& To 1&) As iThinStringBuilder At pObject
+  
+    Select Case Long lAction
+  
+      Case %Class_Action_Get
+        Function = oObject(1&).VarPtr
+  
+      Case %Class_Action_Set
+        thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Assignment to DataPtr is not supported." )
+  
+    End Select
+  
+  End Function
