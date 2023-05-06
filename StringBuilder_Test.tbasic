@@ -1,0 +1,26 @@
+﻿uses "Console"
+uses "StringBuilder"
+
+dim sb as new STRINGBUILDER
+dim lCount as Long
+
+sb.Add("First string")
+sb.Add("Second string")
+
+for lCount = 1 to 3000
+  sb.Add($SPC(10000 * lCount))
+  
+  printl format$(lCount, "0000"), "Capacity:", format$(sb.Capacity, "0,000,000,000")'rset$(sb.Capacity , 20 using " ")
+  printl format$(lCount, "0000"), "StrLen  :", format$(sb.Length  , "0,000,000,000")'rset$(sb.Length   , 20 using " ")
+  printl "--------------------------"
+  if sb.Capacity < sb.Length  Then
+    printl "ATTENTION: internal capacity is less then internal string length" in %CCOLOR_FLIGHTRED
+WaitKey
+  end If
+  
+Next
+
+'const s as string at sb.VarPtr
+'printl s
+
+WaitKey
