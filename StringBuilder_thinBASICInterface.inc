@@ -14,23 +14,25 @@
   
     If pStringBuilder Then
   
-      thinBasic_Class_AddMethod   (pStringBuilder, "_Create"    , %thinBasic_ReturnNone       , CodePtr(StringBuilder_Create)           )
-      thinBasic_Class_AddMethod   (pStringBuilder, "_Destroy"   , %thinBasic_ReturnNone       , CodePtr(StringBuilder_Destroy)          )
-  
-      thinBasic_Class_AddMethod   (pStringBuilder, "Add"        , %thinBasic_ReturnCodeLong   , CodePtr(StringBuilder_Add)              )
-      thinBasic_Class_AddMethod   (pStringBuilder, "AddLine"    , %thinBasic_ReturnCodeLong   , CodePtr(StringBuilder_AddLine)          )
+      thinBasic_Class_AddMethod   (pStringBuilder, "_Create"      , %thinBasic_ReturnNone       , CodePtr(StringBuilder_Create)               )
+      thinBasic_Class_AddMethod   (pStringBuilder, "_Destroy"     , %thinBasic_ReturnNone       , CodePtr(StringBuilder_Destroy)              )
+                                                                                                                                              
+      thinBasic_Class_AddMethod   (pStringBuilder, "Add"          , %thinBasic_ReturnCodeLong   , CodePtr(StringBuilder_Add)                  )
+      thinBasic_Class_AddMethod   (pStringBuilder, "AddLine"      , %thinBasic_ReturnCodeLong   , CodePtr(StringBuilder_AddLine)              )
+                                                                                                                                              
+      thinBasic_Class_AddMethod   (pStringBuilder, "Clear"        , %thinBasic_ReturnCodeLong   , CodePtr(StringBuilder_Clear)                )
+      thinBasic_Class_AddMethod   (pStringBuilder, "ToString"     , %thinBasic_ReturnString     , CodePtr(StringBuilder_ToString)             )
+                                                                                                                                              
+      thinBasic_Class_AddProperty (pStringBuilder, "Char"         , %thinBasic_ReturnString     , CodePtr(StringBuilder_Property_Char)        )
+      thinBasic_Class_AddProperty (pStringBuilder, "CharCode"     , %thinBasic_ReturnCodeByte   , CodePtr(StringBuilder_Property_CharCode)    )
+                                                                                                                                              
+      thinBasic_Class_AddProperty (pStringBuilder, "Length"       , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_Length)      )
+      thinBasic_Class_AddProperty (pStringBuilder, "Capacity"     , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_Capacity)    )
+                                                                  
+      thinBasic_Class_AddProperty (pStringBuilder, "StorageType"  , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_StorageType) )
 
-      thinBasic_Class_AddMethod   (pStringBuilder, "Clear"      , %thinBasic_ReturnCodeLong   , CodePtr(StringBuilder_Clear)            )
-      thinBasic_Class_AddMethod   (pStringBuilder, "ToString"   , %thinBasic_ReturnString     , CodePtr(StringBuilder_ToString)         )
-  
-      thinBasic_Class_AddProperty (pStringBuilder, "Char"       , %thinBasic_ReturnString     , CodePtr(StringBuilder_Property_Char)    )
-      thinBasic_Class_AddProperty (pStringBuilder, "CharCode"   , %thinBasic_ReturnCodeByte   , CodePtr(StringBuilder_Property_CharCode))
-
-      thinBasic_Class_AddProperty (pStringBuilder, "Length"     , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_Length)  )
-      thinBasic_Class_AddProperty (pStringBuilder, "Capacity"   , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_Capacity))
-  
-      thinBasic_Class_AddProperty (pStringBuilder, "DataPTR"    , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_DataPtr) )
-      thinBasic_Class_AddProperty (pStringBuilder, "VarPTR"     , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_VarPtr)  )
+      thinBasic_Class_AddProperty (pStringBuilder, "DataPTR"      , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_DataPtr)     )
+      thinBasic_Class_AddProperty (pStringBuilder, "VarPTR"       , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_VarPtr)      )
   
       Function = 0
     Else
@@ -275,6 +277,36 @@
   
             If thinBasic_ErrorFree Then
               oObject(&1).Capacity = capacity
+            End If
+          End If
+        End If
+  
+  
+    End Select
+  
+  End Function
+
+  '-----------------------------------------------------------------------------
+  Function StringBuilder_Property_StorageType(ByVal pObject As Dword, ByVal lAction As Long) As Dword
+  '-----------------------------------------------------------------------------  
+    ReDim oObject(1& To 1&) As iThinStringBuilder At pObject
+  
+    Select Case Long lAction
+  
+      Case %Class_Action_Get
+        Function = oObject(1&).StorageType
+  
+      Case %Class_Action_Set
+        Local lEqualType    As Long
+        lEqualType = thinBasic_CheckEqualType_Mandatory
+  
+        If thinBasic_ErrorFree Then
+          If lEqualType = %Equal_EQ Then
+            Dim StorageType As Ext
+            thinBasic_ParseNumber StorageType
+  
+            If thinBasic_ErrorFree Then
+              oObject(&1).StorageType = StorageType
             End If
           End If
         End If

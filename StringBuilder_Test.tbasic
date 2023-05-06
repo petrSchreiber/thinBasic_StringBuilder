@@ -1,26 +1,37 @@
 ﻿uses "Console"
 uses "StringBuilder"
+uses "File"
 
 dim sb as new STRINGBUILDER
+
+'---StorageType--------------------
+  'sb.StorageType = 1 '---String
+  sb.StorageType = 2  '--Array
+'----------------------------------
+
 dim lCount as Long
 
-sb.Add("First string")
-sb.Add("Second string")
+for lCount = 1 to 3_000_000
 
-for lCount = 1 to 3000
-  sb.Add($SPC(10000 * lCount))
+  '---Add some random line
+  sb.Add(format$(lCount, "00000000") + ":" + $SPC(rnd(100, rnd(110,500))) + $crlf)
   
-  printl format$(lCount, "0000"), "Capacity:", format$(sb.Capacity, "0,000,000,000")'rset$(sb.Capacity , 20 using " ")
-  printl format$(lCount, "0000"), "StrLen  :", format$(sb.Length  , "0,000,000,000")'rset$(sb.Length   , 20 using " ")
-  printl "--------------------------"
+  if mod(lCount, 20000) = 0 then
+    printl format$(lCount, "00000000"), "Capacity:", format$(sb.Capacity, "0,000,000,000")'rset$(sb.Capacity , 20 using " ")
+    printl format$(lCount, "00000000"), "Used    :", format$(sb.Length  , "0,000,000,000")'rset$(sb.Length   , 20 using " ")
+    printl "--------------------------"
+  end If
+  
   if sb.Capacity < sb.Length  Then
     printl "ATTENTION: internal capacity is less then internal string length" in %CCOLOR_FLIGHTRED
-WaitKey
+    WaitKey
   end If
   
 Next
 
-'const s as string at sb.VarPtr
-'printl s
+printl "Finished. Now saving file ..."
+file_Save(app_sourcepath + "HUGE_FILE.txt", sb.ToString)
+printl "File saved. Press a key to end"
+
 
 WaitKey

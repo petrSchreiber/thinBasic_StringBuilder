@@ -1,17 +1,31 @@
   '
   ' StringBuilder internal implementation
   '
+  %internalStorage_UseUndefined   = 0
+  %internalStorage_UseString      = 1
+  %internalStorage_UseArray       = 2
   
   Class thinStringBuilder
-  
-    Instance defaultCapacity    As Dword
-    Instance internalCapacity   As Dword
+
+    '---Indicate what storage type this StringBuilder is using
+      Instance StorageType            As Long
     
-    Instance internalLength     As Dword
-    Instance internalBuffer     As String 
+    '---Used when StorageType is %internalStorage_UseString  
+      Instance defaultCapacity        As Dword
+      Instance internalCapacity       As Dword
+      
+      Instance internalLength         As Dword
+      Instance internalBuffer         As String 
+
+    '---Used when StorageType is %internalStorage_UseArray
+      Instance BufferArray()          As String
+      Instance BufferArray_Size       As Dword
+      Instance BufferAyyay_LastUsed   As Dword
+      Instance BufferAyyay_NewToAdd   As Dword
+       
+    '---Common usage
+      Instance MaxAddedStringLen      As Dword
     
-    Instance MaxAddedStringLen  As Dword
-  
     '--------------------------------------------
     Class Method Create()
     '--------------------------------------------
@@ -28,6 +42,9 @@
         internalBuffer   = Nul$(defaultCapacity)
         internalCapacity = Len(internalBuffer)
         internalLength   = 0
+        
+        Reset BufferArray() 
+        
       End Method
   
       '--------------------------------------------
@@ -52,43 +69,68 @@
         Local finalCapacity           As Dword  
         Local lIncrement              As Dword
         Local lIncreaseBufferStrategy As Long
-  
-        addedTextLen = Len(addedText)
-        finalLength = internalLength + addedTextLen
+ 
+        Select Case Long StorageType 
         
-        '---Determine max added string len so far
-        If MaxAddedStringLen < addedTextLen Then MaxAddedStringLen = addedTextLen
-        
-        If finalLength > internalCapacity Then
-          '---We need to increase internal string adding more capacity
-          '---But how much more capacity? Here different strategies
+          Case %internalStorage_UseString, %internalStorage_UseUndefined 
+
+            addedTextLen = Len(addedText)
+            finalLength = internalLength + addedTextLen
             
-            lIncreaseBufferStrategy = 1
-            Select Case Long lIncreaseBufferStrategy
-              Case 1  '---Startegy 1: increase by double current final len
-                lIncrement = finalLength
-                finalCapacity = finalLength + finalLength
+            '---Determine max added string len so far
+            If MaxAddedStringLen < addedTextLen Then MaxAddedStringLen = addedTextLen
             
-              Case 2  '---Startegy 2: add 4 times the current added text ...
-                lIncrement = addedTextLen * 4
-                finalCapacity = finalLength + lIncrement
+            If finalLength > internalCapacity Then
+              '---We need to increase internal string adding more capacity
+              '---But how much more capacity? Here different strategies
+                
+                lIncreaseBufferStrategy = 1
+                Select Case Long lIncreaseBufferStrategy
+                  Case 1  '---Startegy 1: increase by double current final len
+                    lIncrement = finalLength
+                    finalCapacity = finalLength + finalLength
+                
+                  Case 2  '---Startegy 2: add 4 times the current added text ...
+                    lIncrement = addedTextLen * 4
+                    finalCapacity = finalLength + lIncrement
+    
+                  Case 3  '---Startegy 3: add Max Added String Len so far ...
+                    lIncrement = MaxAddedStringLen
+                    finalCapacity = finalLength + lIncrement
+    
+                End Select
+                
+              internalBuffer += Nul$(finalCapacity - internalCapacity)
+    
+              internalCapacity = Len(internalBuffer)
+    
+            End If
+      
+            Mid$(internalBuffer, internalLength + 1) = addedText
+      
+            internalLength += addedTextLen
 
-              Case 3  '---Startegy 3: add Max Added String Len so far ...
-                lIncrement = MaxAddedStringLen
-                finalCapacity = finalLength + lIncrement
-
-            End Select
+          Case %internalStorage_UseArray
+            '---If internal array is not jet dimensioned
+            If IsFalse(ArrayAttr(BufferArray(), 0)) or BufferArray_Size = 0 Then
+              ReDim BufferArray(1 To defaultCapacity)
+              BufferArray_Size = defaultCapacity 
+              BufferAyyay_LastUsed = 0
+            End If
+                                
+            BufferAyyay_NewToAdd = BufferAyyay_LastUsed + 1
             
-          internalBuffer += Nul$(finalCapacity - internalCapacity)
+            '---If we need more room redim preserve
+            If BufferAyyay_NewToAdd > BufferArray_Size Then
+              BufferArray_Size = BufferArray_Size + (defaultCapacity * 2)
+              ReDim Preserve BufferArray(1 To BufferArray_Size)
+            End If
+            BufferArray(BufferAyyay_NewToAdd) = addedText 
 
-          internalCapacity = Len(internalBuffer)
-
-        End If
-  
-        Mid$(internalBuffer, internalLength + 1) = addedText
-  
-        internalLength += addedTextLen
-  
+            BufferAyyay_LastUsed = BufferAyyay_NewToAdd
+            
+        End Select
+                  
       End Method
   
       '--------------------------------------------
@@ -106,7 +148,14 @@
       '--------------------------------------------
       Property Get Capacity As Dword
       '--------------------------------------------
-        Property = internalCapacity
+        Select Case Long StorageType 
+        
+          Case %internalStorage_UseString, %internalStorage_UseUndefined 
+            Property = internalCapacity
+          Case %internalStorage_UseArray
+            Property = UBound(BufferArray(1)) 
+        End Select
+
       End Property
   
       '--------------------------------------------
@@ -130,7 +179,16 @@
       '--------------------------------------------
       Property Get Length As Dword
       '--------------------------------------------
-        Property = internalLength
+        Select Case Long StorageType 
+        
+          Case %internalStorage_UseString, %internalStorage_UseUndefined 
+            Property = internalLength 
+
+          Case %internalStorage_UseArray
+            Property = BufferAyyay_LastUsed 
+        
+        End Select
+        
       End Property
   
       '--------------------------------------------
@@ -187,6 +245,18 @@
         asciiCode(position) = value
   
       End Property
+
+      '--------------------------------------------
+      Property Get StorageType As Dword
+      '--------------------------------------------
+        Property = StorageType
+      End Property
+  
+      '--------------------------------------------
+      Property Set StorageType(ByVal value As Dword )
+      '--------------------------------------------
+        StorageType = value
+      End Property
   
       '--------------------------------------------
       Property Get DataPtr() As Dword
@@ -203,7 +273,20 @@
       '--------------------------------------------
       Method ToString() As String
       '--------------------------------------------
-        Method = Left$(internalBuffer, internalLength)
+        Select Case Long StorageType 
+        
+          Case %internalStorage_UseString, %internalStorage_UseUndefined 
+            Method = Left$(internalBuffer, internalLength)
+            
+          Case %internalStorage_UseArray   
+            '---Redim in order not to take over allocated elements
+            ReDim Preserve BufferArray(1 To BufferAyyay_LastUsed)
+            BufferArray_Size = BufferAyyay_LastUsed
+
+            Method = Join$(BufferArray(), "") 
+            
+        End Select
+
       End Method
   
     End Interface
