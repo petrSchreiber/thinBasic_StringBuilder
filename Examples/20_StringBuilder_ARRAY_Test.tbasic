@@ -2,30 +2,45 @@
 uses "StringBuilder"
 uses "File"
 
-dim sb as new cStringBuilderArray
+dim sb        as new cStringBuilderArray
+dim tMeasure  as new CTIMER
 
-dim lCount as Long
+dim lCount      as Long
+dim lCount_Max  as Long = 1_000_000
 
-for lCount = 1 to 1_000_000
+printl $("Start addin {lCount_Max} strings")
+  tMeasure.Start
+    for lCount = 1 to 1005'_000_000
 
-  '---Add some random line
-  sb.Add(format$(lCount, "00000000") + ":" + String$(rnd(10, rnd(11,30)), "X"))
-  
-  if mod(lCount, 100000) = 0 then
-    'printl format$(lCount, "00000000"), "Size:", format$(sb.Size    , "0,000,000,000")
-    printl format$(lCount, "00000000"), "Used:", format$(sb.LastUsed, "0,000,000,000")
-    printl "--------------------------"
-  end If
-  
-Next
+      '---Add some random line
+      printl "Add.........:", sb.Add(format$(lCount, "00000000") + ":" + String$(rnd(10, rnd(110,3000)), "X") + $crlf)
+      printl "DataCount...:", sb.DataCount
+      printl "ArrayCount..:", sb.ArrayCount
+      'printl "ToString....:", sb.ToString
+  '    if mod(lCount, 100000) = 0 then
+  '      'printl format$(lCount, "00000000"), "Size:", format$(sb.Size    , "0,000,000,000")
+  '      printl format$(lCount, "00000000"), "Used:", format$(sb.LastUsed, "0,000,000,000")
+  '      printl "--------------------------"
+  '    end If
+    Next
+  tMeasure.Stop
 
-printl "Done adding string. Press a key to save"
+printl $("Done adding strings. Elapsed time (milliseconds): {tMeasure.Elapsed(%cTimer_MilliSeconds)}")
+printl $("Press a key to save concatenated string into a file")
 WaitKey
 
-'printl sb.ToString($crlf)
-'printl "Finished. Now saving file ..."
-file_Save(app_sourcepath + "HUGE_FILE.txt", sb.ToString)
-'printl "File saved. Press a key to end"
+string sFileName = app_sourcepath + "HUGE_FILE.txt"
+printl $("Saving file: {sFileName}.")
+  tMeasure.Start
 
-printl app_sourcepath + "HUGE_FILE.txt file saved. Press a key to show"
+    'printl sb.ToString($crlf)
+    'printl "Finished. Now saving file ..."
+    file_Save(app_sourcepath + "HUGE_FILE.txt", sb.ToString)
+    'printl "File saved. Press a key to end"
+  tMeasure.Stop
+
+printl $("File saved. Elapsed time (milliseconds): {tMeasure.Elapsed(%cTimer_MilliSeconds})")
+printl $("Total data size: {sb.DataSize}")
+
+printl "Press a key to end"
 WaitKey

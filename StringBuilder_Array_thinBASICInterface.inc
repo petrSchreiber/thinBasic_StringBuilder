@@ -22,8 +22,12 @@
       thinBasic_Class_AddMethod   (pStringBuilder, "Clear"        , %thinBasic_ReturnCodeLong   , CodePtr(StringBuilder_Array_Clear)                )
       thinBasic_Class_AddMethod   (pStringBuilder, "ToString"     , %thinBasic_ReturnString     , CodePtr(StringBuilder_Array_ToString)             )
                                                                                                                                               
-      thinBasic_Class_AddProperty (pStringBuilder, "LastUsed"     , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Array_Property_LastUsed)    )
-      'thinBasic_Class_AddProperty (pStringBuilder, "Size"         , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Array_Property_Size)        )
+
+      thinBasic_Class_AddProperty (pStringBuilder, "LastUsed"     , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Array_Property_LastUsed)    ) 
+      
+      thinBasic_Class_AddProperty (pStringBuilder, "DataCount"    , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Array_Property_DataCount)   )
+      thinBasic_Class_AddProperty (pStringBuilder, "DataSize"     , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Array_Property_DataSize)    )
+      thinBasic_Class_AddProperty (pStringBuilder, "ArrayCount"   , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Array_Property_ArrayCount)   )
             
 '---IDEAS           
 ' Calculate data size
@@ -53,37 +57,6 @@
     Else
       oObject(1&).Initialize()
     End If
-
-  
-'    Dim initialCapacity As Ext
-'    Dim initialText     As String 
-'    
-'    If thinBasic_CheckOpenParens_Optional() And thinBasic_ErrorFree() Then
-'  
-'      If thinBasic_CheckCloseParens_Optional() And thinBasic_ErrorFree() Then
-'        oObject(1&).Initialize()
-'      Else
-'  
-'        Select Case thinBasic_DetermineType
-'          Case %thinBasic_ReturnNumber
-'            thinBasic_ParseNumber initialCapacity
-'  
-'            If thinBasic_CheckCloseParens_Mandatory() And thinBasic_ErrorFree() Then
-'              oObject(1&).Initialize2(ByCopy initialCapacity)
-'            End If
-'  
-'          Case %thinBasic_ReturnString
-'            thinBasic_ParseString initialText
-'  
-'            If thinBasic_CheckCloseParens_Mandatory() And thinBasic_ErrorFree() Then
-'              oObject(1&).Initialize3(initialText)
-'            End If
-'        End Select
-'  
-'      End If
-'    Else
-'      oObject(1&).Initialize1()
-'    End If
   
   End Sub
 
@@ -169,21 +142,53 @@
   
   End Function
 
-'  '-----------------------------------------------------------------------------
-'  Function StringBuilder_Array_Property_Size(ByVal pObject As Dword, ByVal lAction As Long) As Dword
-'  '-----------------------------------------------------------------------------  
-'    ReDim oObject(1& To 1&) As iStringBuilderArray At pObject
-'  
-'    Select Case Long lAction
-'  
-'      Case %Class_Action_Get
-'        Function = oObject(1&).Size
-'  
-'      Case %Class_Action_Set
-'      '  thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Assignment to Length is not supported." )
-'  
-'    End Select
-'  
-'  End Function
+  '-----------------------------------------------------------------------------
+  Function StringBuilder_Array_Property_DataSize(ByVal pObject As Dword, ByVal lAction As Long) As Dword
+  '-----------------------------------------------------------------------------  
+    ReDim oObject(1& To 1&) As iStringBuilderArray At pObject
+  
+    Select Case Long lAction
+  
+      Case %Class_Action_Get
+        Function = oObject(1&).DataSize
+  
+      Case %Class_Action_Set
+      '  thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Assignment to Length is not supported." )
+  
+    End Select
+  
+  End Function
 
+  '-----------------------------------------------------------------------------
+  Function StringBuilder_Array_Property_DataCount(ByVal pObject As Dword, ByVal lAction As Long) As Dword
+  '-----------------------------------------------------------------------------  
+    ReDim oObject(1& To 1&) As iStringBuilderArray At pObject
+  
+    Select Case Long lAction
+  
+      Case %Class_Action_Get
+        Function = oObject(1&).DataCount
+  
+      Case %Class_Action_Set
+      '  thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Assignment to Length is not supported." )
+  
+    End Select
+  
+  End Function
 
+  '-----------------------------------------------------------------------------
+  Function StringBuilder_Array_Property_ArrayCount(ByVal pObject As Dword, ByVal lAction As Long) As Dword
+  '-----------------------------------------------------------------------------  
+    ReDim oObject(1& To 1&) As iStringBuilderArray At pObject
+  
+    Select Case Long lAction
+  
+      Case %Class_Action_Get
+        Function = oObject(1&).ArrayCount
+  
+      Case %Class_Action_Set
+      '  thinbasic_RunTimeError ( %ERR__MODULE_SPECIFIC, "Assignment to Length is not supported." )
+  
+    End Select
+  
+  End Function
