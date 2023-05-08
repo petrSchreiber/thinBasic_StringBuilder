@@ -10,14 +10,14 @@ dim lCount_Max  as Long = 1_000_000
 
 printl $("Start addin {lCount_Max} strings")
   tMeasure.Start
-    for lCount = 1 to 1_000_000
+    for lCount = 1 to 4_000_000
 
       '---Add some random line
-      sb.Add(format$(lCount, "00000000") + ":" + String$(rnd(10, rnd(110,3000)), "X") + $crlf)
+      sb.Add(format$(lCount, "00000000") + ":" + String$(rnd(10, rnd(110,300)), "X") + $crlf)
       'printl "DataCount...:", sb.DataCount
       'printl "ArrayCount..:", sb.ArrayCount
       'printl "ToString....:", sb.ToString
-      if mod(lCount, 100000) = 0 then
+      if mod(lCount, 250000) = 0 then
         'printl format$(lCount, "00000000"), "Size:", format$(sb.Size    , "0,000,000,000")
         printl format$(lCount, "00000000"), "Used:", format$(sb.DataCount, "0,000,000,000")
         printl "--------------------------"
