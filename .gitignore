@@ -7,5 +7,6 @@
 *.RES
 Backup.*.*
 UnitTests/unitTest.txt
+Examples/*.txt
 1.*
 2.*
