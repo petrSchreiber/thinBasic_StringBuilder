@@ -1,0 +1,31 @@
+﻿uses "Console"
+uses "StringBuilder"
+uses "File"
+
+dim sb as new cStringBuilderArray
+
+dim lCount as Long
+
+for lCount = 1 to 1_000_000
+
+  '---Add some random line
+  sb.Add(format$(lCount, "00000000") + ":" + String$(rnd(10, rnd(11,30)), "X"))
+  
+  if mod(lCount, 100000) = 0 then
+    'printl format$(lCount, "00000000"), "Size:", format$(sb.Size    , "0,000,000,000")
+    printl format$(lCount, "00000000"), "Used:", format$(sb.LastUsed, "0,000,000,000")
+    printl "--------------------------"
+  end If
+  
+Next
+
+printl "Done adding string. Press a key to save"
+WaitKey
+
+'printl sb.ToString($crlf)
+'printl "Finished. Now saving file ..."
+file_Save(app_sourcepath + "HUGE_FILE.txt", sb.ToString)
+'printl "File saved. Press a key to end"
+
+printl app_sourcepath + "HUGE_FILE.txt file saved. Press a key to show"
+WaitKey

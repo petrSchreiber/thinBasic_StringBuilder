@@ -1,27 +1,15 @@
   '
   ' StringBuilder internal implementation
   '
-  %internalStorage_UseUndefined   = 0
-  %internalStorage_UseString      = 1
-  %internalStorage_UseArray       = 2
   
   Class thinStringBuilder
 
-    '---Indicate what storage type this StringBuilder is using
-      Instance StorageType            As Long
-    
-    '---Used when StorageType is %internalStorage_UseString  
+    '--- 
       Instance defaultCapacity        As Dword
       Instance internalCapacity       As Dword
       
       Instance internalLength         As Dword
       Instance internalBuffer         As String 
-
-    '---Used when StorageType is %internalStorage_UseArray
-      Instance BufferArray()          As String
-      Instance BufferArray_Size       As Dword
-      Instance BufferAyyay_LastUsed   As Dword
-      Instance BufferAyyay_NewToAdd   As Dword
        
     '---Common usage
       Instance MaxAddedStringLen      As Dword
@@ -42,8 +30,6 @@
         internalBuffer   = Nul$(defaultCapacity)
         internalCapacity = Len(internalBuffer)
         internalLength   = 0
-        
-        Reset BufferArray() 
         
       End Method
   
@@ -70,10 +56,6 @@
         Local lIncrement              As Dword
         Local lIncreaseBufferStrategy As Long
  
-        Select Case Long StorageType 
-        
-          Case %internalStorage_UseString, %internalStorage_UseUndefined 
-
             addedTextLen = Len(addedText)
             finalLength = internalLength + addedTextLen
             
@@ -110,26 +92,6 @@
       
             internalLength += addedTextLen
 
-          Case %internalStorage_UseArray
-            '---If internal array is not jet dimensioned
-            If IsFalse(ArrayAttr(BufferArray(), 0)) or BufferArray_Size = 0 Then
-              ReDim BufferArray(1 To defaultCapacity)
-              BufferArray_Size = defaultCapacity 
-              BufferAyyay_LastUsed = 0
-            End If
-                                
-            BufferAyyay_NewToAdd = BufferAyyay_LastUsed + 1
-            
-            '---If we need more room redim preserve
-            If BufferAyyay_NewToAdd > BufferArray_Size Then
-              BufferArray_Size = BufferArray_Size + (defaultCapacity * 2)
-              ReDim Preserve BufferArray(1 To BufferArray_Size)
-            End If
-            BufferArray(BufferAyyay_NewToAdd) = addedText 
-
-            BufferAyyay_LastUsed = BufferAyyay_NewToAdd
-            
-        End Select
                   
       End Method
   
@@ -148,13 +110,7 @@
       '--------------------------------------------
       Property Get Capacity As Dword
       '--------------------------------------------
-        Select Case Long StorageType 
-        
-          Case %internalStorage_UseString, %internalStorage_UseUndefined 
             Property = internalCapacity
-          Case %internalStorage_UseArray
-            Property = UBound(BufferArray(1)) 
-        End Select
 
       End Property
   
@@ -179,15 +135,7 @@
       '--------------------------------------------
       Property Get Length As Dword
       '--------------------------------------------
-        Select Case Long StorageType 
-        
-          Case %internalStorage_UseString, %internalStorage_UseUndefined 
             Property = internalLength 
-
-          Case %internalStorage_UseArray
-            Property = BufferAyyay_LastUsed 
-        
-        End Select
         
       End Property
   
@@ -245,18 +193,6 @@
         asciiCode(position) = value
   
       End Property
-
-      '--------------------------------------------
-      Property Get StorageType As Dword
-      '--------------------------------------------
-        Property = StorageType
-      End Property
-  
-      '--------------------------------------------
-      Property Set StorageType(ByVal value As Dword )
-      '--------------------------------------------
-        StorageType = value
-      End Property
   
       '--------------------------------------------
       Property Get DataPtr() As Dword
@@ -273,21 +209,10 @@
       '--------------------------------------------
       Method ToString() As String
       '--------------------------------------------
-        Select Case Long StorageType 
-        
-          Case %internalStorage_UseString, %internalStorage_UseUndefined 
             Method = Left$(internalBuffer, internalLength)
-            
-          Case %internalStorage_UseArray   
-            '---Redim in order not to take over allocated elements
-            ReDim Preserve BufferArray(1 To BufferAyyay_LastUsed)
-            BufferArray_Size = BufferAyyay_LastUsed
-
-            Method = Join$(BufferArray(), "") 
-            
-        End Select
 
       End Method
+
   
     End Interface
     

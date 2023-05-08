@@ -2,7 +2,7 @@
 ' StringBuilder thinBASIC interface
 '
 
-#Include Once "StringBuilder_Implementation.inc"
+#Include Once ".\StringBuilder_Implementation.inc"
 
   '-----------------------------------------------------------------------------
   Function StringBuilder_LoadSymbols() As Long
@@ -29,8 +29,6 @@
       thinBasic_Class_AddProperty (pStringBuilder, "Length"       , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_Length)      )
       thinBasic_Class_AddProperty (pStringBuilder, "Capacity"     , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_Capacity)    )
                                                                   
-      thinBasic_Class_AddProperty (pStringBuilder, "StorageType"  , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_StorageType) )
-
       thinBasic_Class_AddProperty (pStringBuilder, "DataPTR"      , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_DataPtr)     )
       thinBasic_Class_AddProperty (pStringBuilder, "VarPTR"       , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Property_VarPtr)      )
   
@@ -277,36 +275,6 @@
   
             If thinBasic_ErrorFree Then
               oObject(&1).Capacity = capacity
-            End If
-          End If
-        End If
-  
-  
-    End Select
-  
-  End Function
-
-  '-----------------------------------------------------------------------------
-  Function StringBuilder_Property_StorageType(ByVal pObject As Dword, ByVal lAction As Long) As Dword
-  '-----------------------------------------------------------------------------  
-    ReDim oObject(1& To 1&) As iThinStringBuilder At pObject
-  
-    Select Case Long lAction
-  
-      Case %Class_Action_Get
-        Function = oObject(1&).StorageType
-  
-      Case %Class_Action_Set
-        Local lEqualType    As Long
-        lEqualType = thinBasic_CheckEqualType_Mandatory
-  
-        If thinBasic_ErrorFree Then
-          If lEqualType = %Equal_EQ Then
-            Dim StorageType As Ext
-            thinBasic_ParseNumber StorageType
-  
-            If thinBasic_ErrorFree Then
-              oObject(&1).StorageType = StorageType
             End If
           End If
         End If

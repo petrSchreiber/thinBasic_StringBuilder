@@ -19,12 +19,18 @@
 ' -- functionality exposed to ThinBASIC
 #Include "StringBuilder_thinBASICInterface.inc"
 
+' -- functionality exposed to ThinBASIC
+#Include ".\StringBuilder_Array_thinBASICInterface.inc"
+
 '----------------------------------------------------------------------------
 
 FUNCTION LoadLocalSymbols ALIAS "LoadLocalSymbols" (OPTIONAL BYVAL sPath AS STRING) EXPORT AS LONG
 
   ' -- exposes the functionality to thinBasic
   StringBuilder_LoadSymbols()
+  
+  ' -- exposes the functionality to thinBasic
+  StringBuilder_Array_LoadSymbols()
 
   FUNCTION = 0&
 
