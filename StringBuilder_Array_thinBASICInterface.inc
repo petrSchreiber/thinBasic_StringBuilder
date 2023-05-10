@@ -14,8 +14,9 @@
   
     If pStringBuilder Then
   
-      thinBasic_Class_AddMethod   (pStringBuilder, "_Create"      , %thinBasic_ReturnNone       , CodePtr(StringBuilder_Array_Create)               )
-      thinBasic_Class_AddMethod   (pStringBuilder, "_Destroy"     , %thinBasic_ReturnNone       , CodePtr(StringBuilder_Array_Destroy)              )
+      thinBasic_Class_AddMethod   (pStringBuilder, "_Create"          , %thinBasic_ReturnNone       , CodePtr(StringBuilder_Array_Create)               )
+      thinBasic_Class_AddMethod   (pStringBuilder, "_Destroy"         , %thinBasic_ReturnNone       , CodePtr(StringBuilder_Array_Destroy)              )
+      thinBasic_Class_AddMethod   (pStringBuilder, "_GetClassObject"  , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Array_GetClassObject    ))
                                                                                                                                               
       thinBasic_Class_AddMethod   (pStringBuilder, "Add"          , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Array_Add)                  )
                                                                                                                                               
@@ -27,7 +28,9 @@
       
       thinBasic_Class_AddProperty (pStringBuilder, "DataCount"    , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Array_Property_DataCount)   )
       thinBasic_Class_AddProperty (pStringBuilder, "DataSize"     , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Array_Property_DataSize)    )
-      thinBasic_Class_AddProperty (pStringBuilder, "ArrayCount"   , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Array_Property_ArrayCount)   )
+      thinBasic_Class_AddProperty (pStringBuilder, "ArrayCount"   , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Array_Property_ArrayCount)  )
+
+      thinBasic_Class_AddProperty (pStringBuilder, "Merge"        , %thinBasic_ReturnCodeDWord  , CodePtr(StringBuilder_Array_Merge)                )
             
 '---IDEAS           
 ' Calculate data size
@@ -48,7 +51,7 @@
   Sub StringBuilder_Array_Create(ByVal pObject As Dword)
   '-----------------------------------------------------------------------------
   
-    Dim oObject(1& To 1&) As iStringBuilderArray At pObject
+    Dim oObject(1& To 1&) As iStringBuilder_Array At pObject
   
     oObject(1&) = Class "cStringBuilder_Array"
   
@@ -63,7 +66,7 @@
   '-----------------------------------------------------------------------------
   Function StringBuilder_Array_Destroy(ByVal pObject As Dword) As Long
   '-----------------------------------------------------------------------------  
-    Dim oObject(1& To 1&) As iStringBuilderArray At pObject 
+    Dim oObject(1& To 1&) As iStringBuilder_Array At pObject 
     
     oObject(1&) = Nothing
   
@@ -72,7 +75,7 @@
   '-----------------------------------------------------------------------------
   Function StringBuilder_Array_Add(ByVal pObject As Dword) As Dword
   '-----------------------------------------------------------------------------  
-    Dim oObject(1& To 1&) As iStringBuilderArray At pObject
+    Dim oObject(1& To 1&) As iStringBuilder_Array At pObject
   
     Dim addedText As String
     If thinBasic_CheckOpenParens_Mandatory() And thinBasic_ErrorFree() Then
@@ -101,7 +104,7 @@
     End If
     
     If thinBasic_ErrorFree Then
-      Dim oObject(1& To 1&) As iStringBuilderArray At pObject
+      Dim oObject(1& To 1&) As iStringBuilder_Array At pObject
       oObject(1&).Clear()
     End If
     
@@ -118,17 +121,77 @@
     'End If
     
     If thinBasic_ErrorFree Then                                   
-      Dim oObject(1& To 1&) As iStringBuilderArray At pObject  
+      Dim oObject(1& To 1&) As iStringBuilder_Array At pObject  
       Function = oObject(1&).ToString(sSeparator)
     End If
   
   End Function
 
+  '----------------------------------------------------------------------------
+  Function StringBuilder_Array_GetClassObject(ByVal pObject As Long) As Dword
+  '----------------------------------------------------------------------------
+    'If thinBasic_CheckOpenParens_Optional Then thinBasic_CheckCloseParens_Mandatory
+
+    '---If all went fine ...
+    If thinBasic_ErrorFree Then
+      ReDim oObject(1& To 1&) As iStringBuilder_Array At pObject
+      Function = oObject(1&).GetClassObject()
+      
+    End If
+  End Function
+
+
+  Function StringBuilder_Array_Merge(ByVal pObject As Dword) As Dword
+  '-----------------------------------------------------------------------------    
+    Local pStringBuilder_Array_ToMerge As Dword
+    Local lIdx As Dword
+
+    '---thinBasic will call class GetClassObject to get a pointer to the interface of the passed object
+    pStringBuilder_Array_ToMerge = thinBasic_Parse1Number 
+    
+    If thinBasic_ErrorFree Then
+      If pStringBuilder_Array_ToMerge > 0 Then 
+
+        '---Create a new object of iStringBuilder_Array ...
+        Dim oMergeObject(1& To 1&) As iStringBuilder_Array
+        oMergeObject(1&) = Class "cStringBuilder_Array"
+        
+        '---Now let the new object point to the memory location where the passed pStringBuilder_Array_ToMerge point
+        '---So it is like dim ... at double indirection @@
+        Poke Dword, VarPtr(oMergeObject(1&)), pStringBuilder_Array_ToMerge
+        
+        '---If all went fine ...'
+        If IsObject(oMergeObject(1&)) Then
+          '---IMPORTANT ... Call IUnknown.AddRef otherwise when we will exit from
+          '---this function releae of oMergeObject(1&) will also release the original object
+          '---And we do not want this to happen !!!!
+          oMergeObject(1&).AddRef
+        
+          '---Now we are ready to use our 2 obejcts        
+          Dim oObject(1& To 1&) As iStringBuilder_Array At pObject 
+
+          For lIdx = 1 To oMergeObject(1&).LastUsed         
+            oObject(1&).Add(oMergeObject(1&).DataByIndex(lIdx))
+          Next
+
+        End If
+      End If
+
+    End If
+  
+  End Function
+
+
+
+
+
+
+
 
   '-----------------------------------------------------------------------------
   Function StringBuilder_Array_Property_LastUsed(ByVal pObject As Dword, ByVal lAction As Long) As Dword
   '-----------------------------------------------------------------------------  
-    ReDim oObject(1& To 1&) As iStringBuilderArray At pObject
+    ReDim oObject(1& To 1&) As iStringBuilder_Array At pObject
   
     Select Case Long lAction
   
@@ -145,7 +208,7 @@
   '-----------------------------------------------------------------------------
   Function StringBuilder_Array_Property_DataSize(ByVal pObject As Dword, ByVal lAction As Long) As Dword
   '-----------------------------------------------------------------------------  
-    ReDim oObject(1& To 1&) As iStringBuilderArray At pObject
+    ReDim oObject(1& To 1&) As iStringBuilder_Array At pObject
   
     Select Case Long lAction
   
@@ -162,7 +225,7 @@
   '-----------------------------------------------------------------------------
   Function StringBuilder_Array_Property_DataCount(ByVal pObject As Dword, ByVal lAction As Long) As Dword
   '-----------------------------------------------------------------------------  
-    ReDim oObject(1& To 1&) As iStringBuilderArray At pObject
+    ReDim oObject(1& To 1&) As iStringBuilder_Array At pObject
   
     Select Case Long lAction
   
@@ -179,7 +242,7 @@
   '-----------------------------------------------------------------------------
   Function StringBuilder_Array_Property_ArrayCount(ByVal pObject As Dword, ByVal lAction As Long) As Dword
   '-----------------------------------------------------------------------------  
-    ReDim oObject(1& To 1&) As iStringBuilderArray At pObject
+    ReDim oObject(1& To 1&) As iStringBuilder_Array At pObject
   
     Select Case Long lAction
   

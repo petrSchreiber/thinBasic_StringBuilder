@@ -27,7 +27,7 @@
     End Method
   
     '--------------------------------------------
-    Interface iStringBuilderArray
+    Interface iStringBuilder_Array
       Inherit IUnknown
   
       '--------------------------------------------
@@ -46,9 +46,20 @@
                 
       End Method
 
+
+      '----------------------------------------------------------------------------
+      ' GetClassObject returns a pointer to itself
+      '----------------------------------------------------------------------------
+      Method GetClassObject() As Dword
+        Local lPtr As Dword         
+        lPtr = ObjPtr(Me)
+'MsgBox FuncName$ + " " + Hex$(lPtr)
+        Method = lPtr
+      End Method
+
   
       '--------------------------------------------
-      Method Add(ByRef AddedText As String) As Dword
+      Method Add(ByVal AddedText As String) As Dword
       '--------------------------------------------
         Local AddedText_Len     As Dword
  
@@ -99,6 +110,15 @@
         Method = BufferArray_LastUsed
                   
       End Method
+
+      '--------------------------------------------
+      Method DataByIndex(ByVal lIndex As Dword) As String
+      '--------------------------------------------      
+        If lIndex >= 1 And lIndex <= BufferArray_LastUsed Then
+          Method = BufferArray(lIndex)
+        End If
+      End Method
+      
   
       '--------------------------------------------
       Method Clear()

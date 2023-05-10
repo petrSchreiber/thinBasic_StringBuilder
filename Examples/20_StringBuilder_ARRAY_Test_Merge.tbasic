@@ -1,0 +1,23 @@
+﻿uses "Console"
+uses "StringBuilder"
+
+dim sb1        as new cStringBuilderArray
+dim sb2        as new cStringBuilderArray
+
+sb1.Add("[1:sb1.ABCD]")
+sb2.add("[1:sb2.1234]")
+sb2.add("[2:sb2.5678]")
+sb2.add("[3:sb2.9012]")
+
+printl "sb1 is:", sb1.ToString
+printl "sb2 is:", sb2.ToString
+
+sb1.Merge(sb2)
+
+printl
+printl "After merge:---------------------------"
+printl "sb1 is:", sb1.ToString
+printl "sb2 is:", sb2.ToString
+
+PrintL "---Press a key to end---"
+WaitKey
