@@ -159,6 +159,8 @@
         '---Now let the new object point to the memory location where the passed pStringBuilder_Array_ToMerge point
         '---So it is like dim ... at double indirection @@
         Poke Dword, VarPtr(oMergeObject(1&)), pStringBuilder_Array_ToMerge
+        '---At the end ... an object is a pointer that contains a pointer to a memory area.
+        '---Very similar to a Ole32 String BSTR
         
         '---If all went fine ...'
         If IsObject(oMergeObject(1&)) Then
@@ -166,7 +168,7 @@
           '---this function releae of oMergeObject(1&) will also release the original object
           '---And we do not want this to happen !!!!
           oMergeObject(1&).AddRef
-        
+                    
           '---Now we are ready to use our 2 obejcts        
           Dim oObject(1& To 1&) As iStringBuilder_Array At pObject 
 
