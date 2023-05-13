@@ -1,0 +1,50 @@
+﻿uses "Console"
+uses "StringBuilder"
+
+'---Creates 2 cStringBuilderArray objects and give them a name to later use for giving info to user
+dim sb1        as new cStringBuilderArray("sbArray1")
+dim sb2        as new cStringBuilderArray("sbArray2")
+
+dim lCount as Long
+dim MaxCount as Long   = 100'0_000
+
+sb1.Add("[1:sb1.ABCD]")
+
+printl $("Adding {MaxCount} strings to sb2 ...")
+for lCount = 1 to MaxCount
+  sb2.add($("[{lCount}:sb2.{String$(5, ""X"")}]"))
+'  if mod(lCount, 10000) = 0 then printl lCount
+
+Next
+printl "Before Append:---------------------------"
+  sb_ShowInfo(sb1)
+  sb_ShowInfo(sb2)
+
+'---Append to sb1 any number of other cStringBuilderArray obejcts
+'---In this case 2 copies of sb2
+sb1.Append(sb2, sb2)
+
+printl "... Appended, press a key"
+waitkey
+
+printl
+printl "After Append:---------------------------"
+  sb_ShowInfo(sb1)
+  sb_ShowInfo(sb2)
+
+printl "After Clear:---------------------------"
+  sb1.Clear
+  sb2.Clear
+  sb_ShowInfo(sb1)
+  sb_ShowInfo(sb2)
+
+PrintL "---Press a key to end---"
+WaitKey
+
+function sb_ShowInfo(sb as CSTRINGBUILDERARRAY)
+  printl $("{sb.Name}") in %CCOLOR_FYELLOW
+  printl $("{$spc(len(sb.Name))} number of items:"), sb.Items
+  printl $("{$spc(len(sb.Name))} number of bytes:"), sb.Size
+  printl $("{$spc(len(sb.Name))} Data...........:"), sb.ToString(",")
+  printl
+End Function

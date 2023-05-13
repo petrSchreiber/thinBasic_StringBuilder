@@ -10,6 +10,7 @@
       Instance BufferArray()                  As String
       Instance BufferArray_Size               As Dword
       Instance BufferArray_LastUsed           As Dword
+      
       Instance BufferArray_NewToAdd           As Dword 
       
       Instance BufferArray_Increment_Strategy As Dword 
@@ -19,7 +20,11 @@
     '---Common usage
       Instance BufferArray_StringLen_Total    As Dword
       Instance BufferArray_StringLen_Max      As Dword
-    
+
+    '---Object characteristics
+      Instance sName                          As String 
+      
+         
     '--------------------------------------------
     Class Method Create()
     '--------------------------------------------
@@ -43,6 +48,7 @@
 
         BufferArray_StringLen_Total     = 0
         BufferArray_StringLen_Max       = 0
+        BufferArray_LastUsed            = 0
                 
       End Method
 
@@ -125,6 +131,7 @@
       '--------------------------------------------
         Me.Initialize()
       End Method
+
     
       '--------------------------------------------
       Property Get LastUsed As Dword
@@ -149,6 +156,15 @@
       '--------------------------------------------
         Property = BufferArray_Size 
       End Property
+
+      '--------------------------------------------
+      Property Get Name As String
+        Property = sName 
+      End Property
+      Property Set Name (ByVal NewName As String)
+        sName = NewName
+      End Property
+      '--------------------------------------------
   
       '--------------------------------------------
       Method ToString(Optional ByVal sSeparator As String) As String
