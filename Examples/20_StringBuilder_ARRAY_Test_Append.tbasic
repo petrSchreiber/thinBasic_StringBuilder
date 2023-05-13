@@ -6,7 +6,7 @@ dim sb1        as new cStringBuilderArray("sbArray1")
 dim sb2        as new cStringBuilderArray("sbArray2")
 
 dim lCount as Long
-dim MaxCount as Long   = 100'0_000
+dim MaxCount as Long   = 10'0_000
 
 sb1.Add("[1:sb1.ABCD]")
 
@@ -45,6 +45,6 @@ function sb_ShowInfo(sb as CSTRINGBUILDERARRAY)
   printl $("{sb.Name}") in %CCOLOR_FYELLOW
   printl $("{$spc(len(sb.Name))} number of items:"), sb.Items
   printl $("{$spc(len(sb.Name))} number of bytes:"), sb.Size
-  printl $("{$spc(len(sb.Name))} Data...........:"), sb.ToString(",")
+  printl $("{$spc(len(sb.Name))} Data...........:"), sb.ToString
   printl
 End Function
